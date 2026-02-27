@@ -9,5 +9,4 @@ devenv.local.yaml
 # pre-commit
 .pre-commit-config.yaml
 
-/project/target
-/target
+.metals
