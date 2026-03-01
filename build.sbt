@@ -1,10 +1,11 @@
 ThisBuild / scalaVersion := "3.8.2"
 ThisBuild / organization := "org.lichess"
 
-lazy val invites = (project in file("."))
+lazy val app = (project in file("."))
   .settings(
-    name := "invites",
+    name := "app",
     libraryDependencies ++= Seq(
-        "org.scala-lang" %% "toolkit" % "0.7.0"
-    )
+      "com.lihaoyi" %% "cask" % "0.11.0"
+    ),
+    fork := true
   )
