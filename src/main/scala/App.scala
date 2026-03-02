@@ -1,6 +1,6 @@
-import sttp.model.StatusCode
 import Authentik.newUser
 import cask.model.Response
+import sttp.model.StatusCode
 object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
@@ -27,7 +27,7 @@ object App extends cask.MainRoutes:
     )
 
   @cask.get("/callback")
-  def callback(codeVerifier: cask.Cookie, code: String, state: Option[String]): Response[String] =
+  def callback(codeVerifier: cask.Cookie, code: String): Response[String] =
     val response = Lichess.obtainAccessToken(code, codeVerifier.value)
 
     response.body match

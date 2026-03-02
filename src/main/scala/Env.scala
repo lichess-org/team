@@ -1,5 +1,5 @@
-import scala.util.Try
 import scala.io.Source
+import scala.util.Try
 
 object Env:
   def get(key: String, default: String = ""): String =

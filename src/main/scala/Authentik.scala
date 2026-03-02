@@ -1,7 +1,6 @@
+import io.circe.syntax.*
 import sttp.client4.*
 import sttp.client4.circe.*
-import sttp.model.Uri
-import io.circe.syntax.*
 
 object Authentik:
   val backend = DefaultSyncBackend()

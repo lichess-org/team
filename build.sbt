@@ -1,5 +1,14 @@
-ThisBuild / scalaVersion := "3.8.2"
-ThisBuild / organization := "org.lichess"
+inThisBuild(
+  Seq(
+    scalaVersion := "3.8.2",
+    organization := "org.lichess",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
+    scalacOptions ++= Seq(
+      "-Wunused:all"
+    )
+  )
+)
 
 lazy val app = (project in file("."))
   .settings(
