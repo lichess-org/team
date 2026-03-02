@@ -1,6 +1,7 @@
 import Authentik.newUser
 import cask.model.Response
 import sttp.model.StatusCode
+import scala.annotation.unused
 object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
@@ -27,12 +28,13 @@ object App extends cask.MainRoutes:
     )
 
   @cask.get("/callback")
-  def callback(codeVerifier: cask.Cookie, code: String): Response[String] =
+  def callback(codeVerifier: cask.Cookie, code: String, @unused state: String): Response[String] =
     val response = Lichess.obtainAccessToken(code, codeVerifier.value)
 
     response.body match
       case Right(tokenResponse) =>
         val accountResponse = Lichess.me(tokenResponse.access_token, Some(Map("wiki" -> "true")))
+        println(s"Account response: ${accountResponse.body}")
         accountResponse.body match
           case Right(account) =>
             account.email match
@@ -42,9 +44,10 @@ object App extends cask.MainRoutes:
                   name = account.username,
                   email = email
                 )
+                println(s"New user response: ${response.body}")
                 response.body match
                   case Right(newUserResponse) =>
-                    val recoveryResponse = Authentik.recoveryLink(newUserResponse.uid)
+                    val recoveryResponse = Authentik.recoveryLink(newUserResponse.pk.toString)
                     recoveryResponse.body match
                       case Right(recovery) =>
                         cask.Response(

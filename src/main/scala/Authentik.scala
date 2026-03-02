@@ -12,10 +12,11 @@ object Authentik:
       username: String,
       name: String,
       email: String,
-      groups: Option[List[String]] = None
+      groups: List[String] = List.empty
   ): Response[Either[ResponseException[String], AuthentikNewUserResponse]] =
     basicRequest.auth
       .bearer(token)
+      .httpVersion(sttp.model.HttpVersion.HTTP_1_1)
       .post(uri"$host/api/v3/core/users/")
       .body(AuthentikNewUserRequest(username, name, email, groups).asJson.noSpaces)
       .contentType("application/json")
@@ -26,6 +27,7 @@ object Authentik:
     val url = uri"$host/api/v3/core/users/$userId/recovery/"
     basicRequest.auth
       .bearer(token)
+      .httpVersion(sttp.model.HttpVersion.HTTP_1_1)
       .post(url)
       .response(asJson[AuthentikRecoveryResponse])
       .send(backend)
@@ -34,7 +36,7 @@ case class AuthentikNewUserRequest(
     username: String,
     name: String,
     email: String,
-    groups: Option[List[String]]
+    groups: List[String]
 ) derives io.circe.Encoder
 
 case class AuthentikNewUserResponse(
