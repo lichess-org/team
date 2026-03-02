@@ -1,17 +1,6 @@
-import sttp.model.Uri
-import sttp.client4.*
-import sttp.client4.circe.*
-
 object App extends cask.MainRoutes {
-  val backend = DefaultSyncBackend()
-
   override def port: Int = sys.env.getOrElse("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
-
-  def lichessHost = sys.env.getOrElse("LICHESS_HOST", "https://lichess.org")
-  def clientId = "app.lichess.invites"
-  def appUrl = sys.env.getOrElse("APP_URL", s"http://localhost:${port}")
-  def redirectUri = s"$appUrl/callback"
 
   @cask.get("/")
   def home() = "Hello, World!"
@@ -19,21 +8,10 @@ object App extends cask.MainRoutes {
   @cask.get("/login")
   def login() =
     val codeVerifier = PKCEUtil.generateCodeVerifier()
-
-    val queryParams = Map(
-      "response_type" -> "code",
-      "client_id" -> clientId,
-      "redirect_uri" -> redirectUri,
-      "scope" -> "email:read web:mod",
-      "code_challenge_method" -> "S256",
-      "code_challenge" -> PKCEUtil.generateCodeChallenge(codeVerifier)
-    )
-
-    val uriWithQueryParams = uri"$lichessHost/oauth?$queryParams"
-
+    val authUrl = Lichess.requestAuthorizationCode(codeVerifier)
     cask.Response(
-      s"Redirecting to: $uriWithQueryParams",
-      headers = Seq("Location" -> uriWithQueryParams.toString()),
+      s"Redirecting to: $authUrl",
+      headers = Seq("Location" -> authUrl.toString()),
       statusCode = 302,
       cookies = Seq(
         cask.Cookie(
@@ -43,23 +21,10 @@ object App extends cask.MainRoutes {
         )
       )
     )
-  
+
   @cask.get("/callback")
   def callback(codeVerifier: cask.Cookie, code: String, state: Option[String]) =
-    val params = Map(
-      "client_id" -> clientId,
-      "code" -> code,
-      "code_verifier" -> codeVerifier.value,
-      "grant_type" -> "authorization_code",
-      "redirect_uri" -> redirectUri
-    )
-
-    val response = basicRequest
-      .post(uri"$lichessHost/api/token")
-      .body(params)
-      .response(asJson[LichessTokenResponse])
-      .send(backend)
-    
+    val response = Lichess.obtainAccessToken(code, codeVerifier.value)
     s"response: ${response.code}, body: ${response.body}"
 
   initialize()
