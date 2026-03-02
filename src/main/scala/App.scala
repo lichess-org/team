@@ -47,7 +47,7 @@ object App extends cask.MainRoutes:
               case Left(error) =>
                 cask.Response(s"Failed to create invitation: ${error.getMessage}", statusCode = 500)
           case Right(account) =>
-            cask.Response(s"User ${account.username} is not in the Lichess team group", statusCode = 403)
+            cask.Response(s"Error: ${account.username} is not in the `Lichess team`` group", statusCode = 403)
           case Left(error) =>
             cask.Response(s"Failed to fetch account details: ${error.getMessage}", statusCode = 500)
       case Left(error) =>
