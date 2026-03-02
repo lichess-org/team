@@ -27,3 +27,11 @@ sbt scalafmt
 
 sbt scalafix
 ```
+
+### Docker
+
+To test the Docker image locally:
+
+```bash
+sbt Docker/publishLocal
+```

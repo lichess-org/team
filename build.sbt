@@ -11,6 +11,7 @@ inThisBuild(
 )
 
 lazy val app = (project in file("."))
+  .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
     name := "app",
     libraryDependencies ++= Seq(
@@ -19,5 +20,10 @@ lazy val app = (project in file("."))
       "org.scala-lang" %% "toolkit" % "0.7.0",
       "com.softwaremill.sttp.client4" %% "circe" % "4.0.19",
     ),
-    fork := true
+    fork := true,
+    Compile / mainClass  := Some("App"),
+    dockerBaseImage      := "eclipse-temurin:25-jdk-noble",
+    Docker / packageName := "lichess-invites",
+    dockerExposedPorts   := Seq(8080),
+    dockerUpdateLatest   := true,
   )
