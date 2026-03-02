@@ -1,12 +1,13 @@
 import cask.model.Response
 
 import scala.annotation.unused
+import views.Home
 object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
 
   @cask.get("/")
-  def home() = "Hello, World!"
+  def home() = Home.render(Authentik.host)
 
   @cask.get("/login")
   def login(): Response[String] =
