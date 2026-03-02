@@ -1,6 +1,5 @@
-import Authentik.newUser
 import cask.model.Response
-import sttp.model.StatusCode
+
 import scala.annotation.unused
 object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
@@ -34,44 +33,23 @@ object App extends cask.MainRoutes:
     response.body match
       case Right(tokenResponse) =>
         val accountResponse = Lichess.me(tokenResponse.access_token, Some(Map("wiki" -> "true")))
-        println(s"Account response: ${accountResponse.body}")
         accountResponse.body match
-          case Right(account) =>
-            account.email match
-              case Some(email) =>
-                val response = newUser(
-                  username = account.username,
-                  name = account.username,
-                  email = email
-                )
-                println(s"New user response: ${response.body}")
-                response.body match
-                  case Right(newUserResponse) =>
-                    val recoveryResponse = Authentik.recoveryLink(newUserResponse.pk.toString)
-                    recoveryResponse.body match
-                      case Right(recovery) =>
-                        cask.Response(
-                          s"Redirecting to ${recovery.link}",
-                          headers = Seq("Location" -> recovery.link),
-                          statusCode = 302
-                        )
-                      case Left(error) =>
-                        cask.Response(
-                          s"User created but failed to generate recovery link: ${error.getMessage}",
-                          statusCode = 500
-                        )
-                  case Left(error) =>
-                    cask.Response(s"Failed to create user: ${error.getMessage}", statusCode = 500)
-              case None =>
+          case Right(account) if account.groups.exists(_.contains("Lichess team")) =>
+            val inviteResponse =
+              Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username))
+            inviteResponse match
+              case Right(inviteLink) =>
                 cask.Response(
-                  s"Hello, ${account.username}! Your email is ${account.email.getOrElse("not available")} and your groups are ${account.groups.mkString(", ")}.",
-                  statusCode = 200
+                  s"Redirecting to: $inviteLink",
+                  headers = Seq("Location" -> inviteLink.toString()),
+                  statusCode = 302
                 )
+              case Left(error) =>
+                cask.Response(s"Failed to create invitation: ${error.getMessage}", statusCode = 500)
+          case Right(account) =>
+            cask.Response(s"User ${account.username} is not in the Lichess team group", statusCode = 403)
           case Left(error) =>
-            accountResponse.code match
-              case StatusCode.Unauthorized =>
-                cask.Response("You need the `Lichess Team` grant to access this resource.", statusCode = 403)
-              case _ => cask.Response(s"Failed to fetch account info: ${error.getMessage}", statusCode = 500)
+            cask.Response(s"Failed to fetch account details: ${error.getMessage}", statusCode = 500)
       case Left(error) =>
         cask.Response(s"Failed to obtain access token: ${error.getMessage}", statusCode = 500)
 

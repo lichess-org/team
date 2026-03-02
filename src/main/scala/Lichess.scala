@@ -1,8 +1,7 @@
+import io.circe.Decoder
 import sttp.client4.*
 import sttp.client4.circe.*
-import sttp.model.Uri
-import sttp.model.HeaderNames
-import io.circe.Decoder
+import sttp.model.{ HeaderNames, Uri }
 
 object Lichess:
   val backend = DefaultSyncBackend()
@@ -18,7 +17,7 @@ object Lichess:
         "response_type" -> "code",
         "client_id" -> clientId,
         "redirect_uri" -> redirectUri,
-        "scope" -> "email:read web:mod",
+        "scope" -> "web:mod",
         "code_challenge_method" -> "S256",
         "code_challenge" -> PKCEUtil.generateCodeChallenge(codeVerifier)
       )}"

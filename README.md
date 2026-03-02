@@ -17,7 +17,11 @@ http://localhost:8080/
 ```bash
 ### or with custom port and Lichess host:
 
-PORT=8000 LICHESS_HOST=http://localhost:8080 sbt app/run
+PORT=8000 \
+LICHESS_HOST=http://localhost:8080 \
+AUTHENTIK_HOST=http://localhost:9000 \
+AUTHENTIK_TOKEN=token \
+sbt app/run
 ```
 
 ### Development
