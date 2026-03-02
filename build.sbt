@@ -8,6 +8,7 @@ lazy val app = (project in file("."))
       "com.lihaoyi" %% "cask" % "0.11.0",
       "org.polyvariant" %% "sttp-oauth2" % "0.21.0",
       "org.scala-lang" %% "toolkit" % "0.7.0",
+      "com.softwaremill.sttp.client4" %% "circe" % "4.0.19",
     ),
     fork := true
   )

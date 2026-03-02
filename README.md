@@ -1,3 +1,11 @@
+```mermaid
+sequenceDiagram
+    invites.lichess.app->>+Lichess.org: am I a Lichess team member?
+    Lichess.org->>+invites.lichess.app: yes, you are
+    invites.lichess.app->>+Authentik: create a SSO account
+    Authentik->>+invites.lichess.app: "Success! Email sent"
+```
+
 ## Usage
 
 ```bash

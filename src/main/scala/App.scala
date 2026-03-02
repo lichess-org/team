@@ -1,7 +1,10 @@
-import sttp.client4.quick.*
 import sttp.model.Uri
+import sttp.client4.*
+import sttp.client4.circe.*
 
 object App extends cask.MainRoutes {
+  val backend = DefaultSyncBackend()
+
   override def port: Int = sys.env.getOrElse("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
 
@@ -51,10 +54,11 @@ object App extends cask.MainRoutes {
       "redirect_uri" -> redirectUri
     )
 
-    val response = quickRequest
-      .post(uri"$lichessHost/oauth")
+    val response = basicRequest
+      .post(uri"$lichessHost/api/token")
       .body(params)
-      .send()
+      .response(asJson[LichessTokenResponse])
+      .send(backend)
     
     s"response: ${response.code}, body: ${response.body}"
 
