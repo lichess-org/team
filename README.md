@@ -1,10 +1,10 @@
 ```mermaid
 sequenceDiagram
-    invite.lichess.app->>+lichess.org: am I a Lichess team member?
-    lichess.org->>+invite.lichess.app: yes, you are
-    invite.lichess.app->>+Authentik: request an invitation
-    Authentik->>+invite.lichess.app: single-use invite link
-    invite.lichess.app->>+Authentik: follow invite link
+    invites->>+lichess.org: am I a Lichess team member?
+    lichess.org->>+invites: yes, you are
+    invites->>+Authentik: request an invitation
+    Authentik->>+invites: single-use invite link
+    invites->>+Authentik: follow invite link
 ```
 
 ## Usage
