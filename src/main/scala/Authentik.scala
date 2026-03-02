@@ -11,13 +11,14 @@ object Authentik:
 
   def newUser(
     username: String,
+    name: String,
     email: String,
-    groups: Option[List[String]],
+    groups: Option[List[String]] = None
   ): Response[Either[ResponseException[String], AuthentikNewUserResponse]] =
     basicRequest
       .auth.bearer(token)
       .post(uri"$host/api/v3/core/users/")
-      .body(AuthentikNewUserRequest(username, email, groups).asJson.noSpaces)
+      .body(AuthentikNewUserRequest(username, name, email, groups).asJson.noSpaces)
       .contentType("application/json")
       .response(asJson[AuthentikNewUserResponse])
       .send(backend)
@@ -32,19 +33,18 @@ object Authentik:
 
 case class AuthentikNewUserRequest(
   username: String,
+  name: String,
   email: String,
   groups: Option[List[String]],
 ) derives io.circe.Encoder
 
 case class AuthentikNewUserResponse(
-  access_token: String,
-  expires_in: Int,
-  token_type: String,
+  pk: Int,
+  username: String,
+  uid: String,
+  uuid: String,
 ) derives io.circe.Decoder
 
 case class AuthentikRecoveryResponse(
-  id: String,
-  username: String,
-  email: Option[String],
-  groups: Option[List[String]]
+  link: String
 ) derives io.circe.Decoder
