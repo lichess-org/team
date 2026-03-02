@@ -10,41 +10,41 @@ object Authentik:
   def token = Env.get("AUTHENTIK_TOKEN")
 
   def newUser(
-    username: String,
-    name: String,
-    email: String,
-    groups: Option[List[String]] = None
+      username: String,
+      name: String,
+      email: String,
+      groups: Option[List[String]] = None
   ): Response[Either[ResponseException[String], AuthentikNewUserResponse]] =
-    basicRequest
-      .auth.bearer(token)
+    basicRequest.auth
+      .bearer(token)
       .post(uri"$host/api/v3/core/users/")
       .body(AuthentikNewUserRequest(username, name, email, groups).asJson.noSpaces)
       .contentType("application/json")
       .response(asJson[AuthentikNewUserResponse])
       .send(backend)
-  
+
   def recoveryLink(userId: String) =
     val url = uri"$host/api/v3/core/users/$userId/recovery/"
-    basicRequest
-      .auth.bearer(token)
+    basicRequest.auth
+      .bearer(token)
       .post(url)
       .response(asJson[AuthentikRecoveryResponse])
       .send(backend)
 
 case class AuthentikNewUserRequest(
-  username: String,
-  name: String,
-  email: String,
-  groups: Option[List[String]],
+    username: String,
+    name: String,
+    email: String,
+    groups: Option[List[String]]
 ) derives io.circe.Encoder
 
 case class AuthentikNewUserResponse(
-  pk: Int,
-  username: String,
-  uid: String,
-  uuid: String,
+    pk: Int,
+    username: String,
+    uid: String,
+    uuid: String
 ) derives io.circe.Decoder
 
 case class AuthentikRecoveryResponse(
-  link: String
+    link: String
 ) derives io.circe.Decoder

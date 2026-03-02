@@ -1,7 +1,7 @@
 import sttp.model.StatusCode
 import Authentik.newUser
 import cask.model.Response
-object App extends cask.MainRoutes {
+object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
 
@@ -60,13 +60,16 @@ object App extends cask.MainRoutes {
                   case Left(error) =>
                     cask.Response(s"Failed to create user: ${error.getMessage}", statusCode = 500)
               case None =>
-                cask.Response(s"Hello, ${account.username}! Your email is ${account.email.getOrElse("not available")} and your groups are ${account.groups.mkString(", ")}.", statusCode = 200)
+                cask.Response(
+                  s"Hello, ${account.username}! Your email is ${account.email.getOrElse("not available")} and your groups are ${account.groups.mkString(", ")}.",
+                  statusCode = 200
+                )
           case Left(error) =>
             accountResponse.code match
-              case StatusCode.Unauthorized => cask.Response("You need the `Lichess Team` grant to access this resource.", statusCode = 403)
+              case StatusCode.Unauthorized =>
+                cask.Response("You need the `Lichess Team` grant to access this resource.", statusCode = 403)
               case _ => cask.Response(s"Failed to fetch account info: ${error.getMessage}", statusCode = 500)
       case Left(error) =>
         cask.Response(s"Failed to obtain access token: ${error.getMessage}", statusCode = 500)
 
   initialize()
-}
