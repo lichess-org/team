@@ -15,7 +15,7 @@ inThisBuild(
 lazy val app = (project in file("."))
   .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
-    name := "app",
+    name := "lichess-invites",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "cask" % "0.11.0",
       "com.lihaoyi" %% "scalatags" % "0.13.1",
