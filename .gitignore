@@ -13,7 +13,8 @@ devenv.local.yaml
 .bsp
 .metals
 
-/project
+/project/target
+/project/project
 /target
 
 /extra
