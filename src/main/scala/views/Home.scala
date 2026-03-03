@@ -8,22 +8,46 @@ object Home:
         html(
             head(
                 titleTag("Lichess Invites"),
+                meta(charset := "utf-8"),
+                meta(name := "viewport", content := "width=device-width, initial-scale=1"),
                 link(rel := "stylesheet", href := "/static/style.css")
             ),
-            body(
-                cls := "bg-white",
-                h1("Lichess SSO Invites"),
-                p(
-                    "This application allows members of the Lichess team to create an account to access internal apps. If you're not a member of the Lichess team, please contact a team member to request access."
-                ),
-                p(
-                    "To get started, please ",
-                    a(href := "/login", "log in with your Lichess account"),
-                    ". The `web:mod` scope is required to verify that you are a member of the Lichess team."
-                ),
-                p(
-                    "If you already have an account, you can go directly to",
-                    a(href := authentikUrl, " your Authentik dashboard"),
+            body(cls := "",
+                div(cls := "",
+                    div(cls := "",
+                        div(cls := "",
+                            div(cls := "",
+                                h1(cls := "", "Lichess Invites")
+                            )
+                        ),
+                        div(cls := "",
+                            p(cls := "",
+                                "Allows Lichess team members to create an account for internal apps. ",
+                                "If you're not on the team, contact a team member to request access."
+                            ),
+                            div(cls := "",
+                                p(cls := "", "Get started"),
+                                p(cls := "",
+                                    "Log in with Lichess to verify your membership. The ",
+                                    code(cls := "", "web:mod"),
+                                    " scope is required."
+                                ),
+                                a(href := "/login",
+                                    cls := "",
+                                    "Log in with Lichess"
+                                )
+                            ),
+                            div(cls := "",
+                                p(cls := "",
+                                    "Already have an account? ",
+                                    a(href := authentikUrl,
+                                        cls := "",
+                                        "Go to the Authentik portal"
+                                    )
+                                )
+                            )
+                        )
+                    ),
                 )
             )
         )
