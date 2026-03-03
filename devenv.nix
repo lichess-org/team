@@ -5,7 +5,10 @@
   env.GREET = "devenv";
 
   # https://devenv.sh/packages/
-  packages = [ pkgs.git ];
+  packages = [
+    pkgs.git
+    pkgs.yamlfmt
+  ];
 
   languages.java.enable = true;
   languages.java.jdk.package = pkgs.openjdk25;

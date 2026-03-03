@@ -4,43 +4,34 @@ on:
     branches:
       - main
   workflow_dispatch:
-
 env:
   REGISTRY: ghcr.io
-
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-
       - name: Set git commit hash as version
         run: |
-            mkdir -p extra
-            echo "$(git rev-parse --short HEAD)" > extra/version.txt
-
+          mkdir -p extra
+          echo "$(git rev-parse --short HEAD)" > extra/version.txt
       - name: Setup JVM
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 25
           cache: sbt
-
       - name: Install sbt
         uses: sbt/setup-sbt@v1
-
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and push Docker image
         run: sbt app/Docker/publish

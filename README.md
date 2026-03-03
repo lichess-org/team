@@ -31,6 +31,8 @@ sbt app/run
 sbt scalafmt
 
 sbt scalafix
+
+yamlfmt .github
 ```
 
 ### Docker
