@@ -32,7 +32,7 @@ object Home:
                             div(cls := "card-footer",
                                 p(
                                     "Already have an account? ",
-                                    a(href := authentikUrl, "Go to the Authentik portal")
+                                    a(href := authentikUrl, "Go to your Authentik dashboard")
                                 )
                             )
                         )
