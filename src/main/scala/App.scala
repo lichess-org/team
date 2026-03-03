@@ -18,7 +18,7 @@ object App extends cask.MainRoutes:
     val authUrl = Lichess.requestAuthorizationCode(codeVerifier)
 
     cask.Response(
-      s"Redirecting to: $authUrl",
+      "",
       headers = Seq("Location" -> authUrl.toString()),
       statusCode = 302,
       cookies = Seq(
@@ -44,7 +44,7 @@ object App extends cask.MainRoutes:
             inviteResponse match
               case Right(inviteLink) =>
                 cask.Response(
-                  s"Redirecting to: $inviteLink",
+                  "",
                   headers = Seq("Location" -> inviteLink.toString()),
                   statusCode = 302
                 )
@@ -61,7 +61,7 @@ object App extends cask.MainRoutes:
   @cask.get("/healthcheck")
   def healthcheck(): Response[String] =
     Authentik.version() match
-      case Right(_) => cask.Response(s"OK", statusCode = 200)
+      case Right(_) => cask.Response("OK", statusCode = 200)
       case Left(error) =>
         cask.Response(s"Failed to connect to Authentik API: ${error.getMessage}", statusCode = 500)
 
