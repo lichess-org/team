@@ -44,6 +44,7 @@ object Home:
           ),
           if version.nonEmpty then
             p(cls := "page-footer", a(href := s"https://github.com/lichess-org/invites/$version", version))
+          else p(cls := "page-footer", "dev")
         )
       )
     )

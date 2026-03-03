@@ -63,7 +63,6 @@ body {
 }
 
 .section-label {
-  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -119,6 +118,7 @@ code {
 }
 
 .page-footer {
+  color: #57534e;
   margin-top: 1.25rem;
   text-align: center;
 }

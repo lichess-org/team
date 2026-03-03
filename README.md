@@ -39,4 +39,6 @@ To test the Docker image locally:
 
 ```bash
 sbt Docker/publishLocal
+
+docker run --rm -p 8000:8080 lichess-invites
 ```
