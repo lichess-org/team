@@ -5,7 +5,7 @@ import sttp.client4.circe.*
 object Authentik:
   val backend = DefaultSyncBackend()
 
-  def host = Env.get("AUTHENTIK_HOST", "https://auth.lichess.app")
+  def host = Env.get("AUTHENTIK_HOST", "http://localhost:9000")
   def token = Env.get("AUTHENTIK_TOKEN")
   def invitationFlow = Env.get("AUTHENTIK_INVITATION_FLOW", "enrollment-invitation")
 

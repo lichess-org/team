@@ -1,3 +1,5 @@
+import NativePackagerHelper._
+
 inThisBuild(
   Seq(
     scalaVersion := "3.8.2",
@@ -27,4 +29,8 @@ lazy val app = (project in file("."))
     Docker / packageName := "lichess-invites",
     dockerExposedPorts   := Seq(8080),
     dockerUpdateLatest   := true,
+    dockerEnvVars := Map(
+      "VERSION_FILE" -> "/opt/docker/extra/version.txt"
+    ),
+    Universal / mappings ++= directory("extra")
   )

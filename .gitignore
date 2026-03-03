@@ -16,4 +16,5 @@ devenv.local.yaml
 /project
 /target
 
+/extra
 /node_modules
