@@ -51,7 +51,10 @@ object App extends cask.MainRoutes:
               case Left(error) =>
                 cask.Response(s"Failed to create invitation: ${error.getMessage}", statusCode = 500)
           case _ =>
-            cask.Response("Unauthorized: You must be a member of the Lichess team to access this service.", statusCode = 401)
+            cask.Response(
+              "Unauthorized: You must be a member of the Lichess team to access this service.",
+              statusCode = 401
+            )
       case Left(error) =>
         cask.Response(s"Failed to obtain access token: ${error.getMessage}", statusCode = 500)
 
