@@ -21,6 +21,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Set git commit hash as version
+        run: echo "$(git rev-parse --short HEAD)" > extra/version.txt
+
       - name: Setup JVM
         uses: actions/setup-java@v5
         with:
