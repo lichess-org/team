@@ -12,6 +12,7 @@ devenv.local.yaml
 .bloop
 .bsp
 .metals
+project/metals.sbt
 
 /project/target
 /project/project
