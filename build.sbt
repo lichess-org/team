@@ -26,8 +26,7 @@ lazy val app = (project in file("."))
     fork := true,
     Compile / mainClass  := Some("App"),
     dockerBaseImage      := "eclipse-temurin:25-jdk-noble",
-    Docker / packageName := "lichess-invites",
-    dockerExposedPorts   := Seq(8080),
+    dockerRepository        := Some("ghcr.io"),
     dockerUpdateLatest   := true,
     dockerEnvVars := Map(
       "VERSION_FILE" -> "/opt/docker/extra/version.txt"
