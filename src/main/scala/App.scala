@@ -36,7 +36,7 @@ object App extends cask.MainRoutes:
 
     response.body match
       case Right(tokenResponse) =>
-        val accountResponse = Lichess.me(tokenResponse.access_token, Some(Map("wiki" -> "true")))
+        val accountResponse = Lichess.me(tokenResponse.access_token, Map("wiki" -> "true"))
         accountResponse.body match
           case Right(account) if account.groups.exists(_.contains("Lichess team")) =>
             val inviteResponse =

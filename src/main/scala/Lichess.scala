@@ -7,7 +7,7 @@ object Lichess:
   val backend = DefaultSyncBackend()
 
   def host = Env.get("LICHESS_HOST", "https://lichess.org")
-  def clientId = "app.lichess.invites"
+  val clientId = "app.lichess.invites"
   def appUrl = Env.get("APP_URL", s"http://localhost:${Env.get("PORT", "8080")}")
   def redirectUri = s"$appUrl/callback"
   def userAgent = s"$clientId ($appUrl)"
@@ -41,10 +41,9 @@ object Lichess:
       .response(asJson[LichessTokenResponse])
       .send(backend)
 
-  def me(accessToken: String, queryParams: Option[Map[String, String]] = None) =
-    val url = uri"$host/api/account?${queryParams.getOrElse(Map.empty)}"
+  def me(accessToken: String, queryParams: Map[String, String] = Map.empty) =
     basicRequest
-      .get(url)
+      .get(uri"$host/api/account?$queryParams")
       .header(HeaderNames.UserAgent, userAgent)
       .header(HeaderNames.Authorization, s"Bearer $accessToken")
       .response(asJson[LichessAccountResponse])
