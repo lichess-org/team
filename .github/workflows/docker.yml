@@ -22,7 +22,9 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set git commit hash as version
-        run: echo "$(git rev-parse --short HEAD)" > extra/version.txt
+        run: |
+            mkdir -p extra
+            echo "$(git rev-parse --short HEAD)" > extra/version.txt
 
       - name: Setup JVM
         uses: actions/setup-java@v5
