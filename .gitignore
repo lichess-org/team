@@ -17,4 +17,3 @@ devenv.local.yaml
 /target
 
 /node_modules
-/src/main/static

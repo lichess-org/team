@@ -7,7 +7,7 @@ object App extends cask.MainRoutes:
   override def host: String = "0.0.0.0"
 
   @cask.staticFiles("/static")
-  def staticEndpoint(): String = "src/main/static"
+  def staticEndpoint(): String = "src/main/resources/static"
 
   @cask.get("/")
   def home() = Home.render(Authentik.host)
