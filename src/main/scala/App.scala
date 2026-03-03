@@ -10,7 +10,7 @@ object App extends cask.MainRoutes:
   def staticEndpoint(): String = "src/main/resources/static"
 
   @cask.get("/")
-  def home() = Home.render(Authentik.host)
+  def home() = Home.render(Authentik.host, Env.get("VERSION", "unknown"))
 
   @cask.get("/login")
   def login(): Response[String] =

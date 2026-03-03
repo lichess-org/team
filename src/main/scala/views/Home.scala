@@ -4,7 +4,7 @@ import scalatags.Text.all.*
 import scalatags.Text.tags2.title as titleTag
 
 object Home:
-  def render(authentikUrl: String) =
+  def render(authentikUrl: String, version: String) =
     html(
       head(
         titleTag("Lichess Invites"),
@@ -41,7 +41,8 @@ object Home:
                 )
               )
             )
-          )
+          ),
+          p(cls := "page-footer", a(href := s"https://github.com/lichess-org/invites/$version", version))
         )
       )
     )

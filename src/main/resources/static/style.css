@@ -117,3 +117,18 @@ code {
 .card-footer a:hover {
   color: #fcd34d;
 }
+
+.page-footer {
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+.page-footer a {
+  color: #57534e;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.page-footer a:hover {
+  color: #a8a29e;
+}
