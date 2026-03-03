@@ -1,7 +1,7 @@
 import cask.model.Response
+import views.Home
 
 import scala.annotation.unused
-import views.Home
 object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
