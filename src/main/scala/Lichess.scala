@@ -49,15 +49,9 @@ object Lichess:
       .response(asJson[LichessAccountResponse])
       .send(backend)
 
-case class LichessTokenResponse(
-    access_token: String,
-    expires_in: Int,
-    token_type: String
-) derives Decoder
+case class LichessTokenResponse(access_token: String) derives Decoder
 
 case class LichessAccountResponse(
-    id: String,
     username: String,
-    email: Option[String],
     groups: Option[List[String]]
 ) derives Decoder

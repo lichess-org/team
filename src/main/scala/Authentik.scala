@@ -19,13 +19,7 @@ object Authentik:
       .response(asJson[AuthentikInvitationResponse])
       .send(backend)
 
-    response.body match
-      case Right(invite) =>
-        val inviteLink = uri"$host/if/flow/${invitationFlow}/?${Map("itoken" -> invite.pk)}"
-        Right(inviteLink)
-      case Left(error) =>
-        println(s"Failed to create invitation: ${error.getMessage}")
-        Left(error)
+    response.body.map(invite => uri"$host/if/flow/${invitationFlow}/?${Map("itoken" -> invite.pk)}")
 
   /** Version check request used to verify connectivity and token permissions with the Authentik API.
     */
@@ -36,10 +30,7 @@ object Authentik:
       .get(uri"$host/api/v3/admin/version/")
       .response(asJson[AuthentikVersionResponse])
       .send(backend)
-      .body match
-      case Right(version) => Right(version)
-      case Left(error) =>
-        Left(error)
+      .body
 
 case class AuthentikInvitationRequest(
     name: String,
