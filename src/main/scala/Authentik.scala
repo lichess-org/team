@@ -27,6 +27,20 @@ object Authentik:
         println(s"Failed to create invitation: ${error.getMessage}")
         Left(error)
 
+  /** Version check request used to verify connectivity and token permissions with the Authentik API.
+    */
+  def version() =
+    basicRequest.auth
+      .bearer(token)
+      .httpVersion(sttp.model.HttpVersion.HTTP_1_1)
+      .get(uri"$host/api/v3/admin/version/")
+      .response(asJson[AuthentikVersionResponse])
+      .send(backend)
+      .body match
+      case Right(version) => Right(version)
+      case Left(error) =>
+        Left(error)
+
 case class AuthentikInvitationRequest(
     name: String,
     fixed_data: Map[String, String],
@@ -35,4 +49,13 @@ case class AuthentikInvitationRequest(
 
 case class AuthentikInvitationResponse(
     pk: String
+) derives io.circe.Decoder
+
+case class AuthentikVersionResponse(
+    build_hash: String,
+    outdated: Boolean,
+    outpost_outdated: Boolean,
+    version_current: String,
+    version_latest: String,
+    version_latest_valid: Boolean
 ) derives io.circe.Decoder
