@@ -8,6 +8,7 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         java-version:
           - 25
@@ -24,4 +25,4 @@ jobs:
           cache: sbt
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
-      - run: sbt "${matrix.command}"
+      - run: sbt "${{ matrix.command }}"
