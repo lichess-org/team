@@ -14,3 +14,6 @@ devenv.local.yaml
 
 /project
 /target
+
+/node_modules
+/src/main/static

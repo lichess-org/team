@@ -6,6 +6,9 @@ object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
 
+  @cask.staticFiles("/static")
+  def staticEndpoint(): String = "src/main/static"
+
   @cask.get("/")
   def home() = Home.render(Authentik.host)
 

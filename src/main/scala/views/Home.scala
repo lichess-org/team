@@ -8,9 +8,10 @@ object Home:
         html(
             head(
                 titleTag("Lichess Invites"),
-                link(rel := "stylesheet", href := "/static/styles.css")
+                link(rel := "stylesheet", href := "/static/style.css")
             ),
             body(
+                cls := "bg-white",
                 h1("Lichess SSO Invites"),
                 p(
                     "This application allows members of the Lichess team to create an account to access internal apps. If you're not a member of the Lichess team, please contact a team member to request access."
@@ -22,7 +23,7 @@ object Home:
                 ),
                 p(
                     "If you already have an account, you can go directly to",
-                    a(href := authentikUrl, " the Authentik portal"),
+                    a(href := authentikUrl, " your Authentik dashboard"),
                 )
             )
         )
