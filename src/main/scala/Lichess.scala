@@ -12,7 +12,7 @@ object Lichess:
   lazy val redirectUri = s"$appUrl/callback"
   lazy val userAgent = s"$clientId ($appUrl)"
 
-  private def baseRequest = basicRequest.header(HeaderNames.UserAgent, userAgent)
+  private lazy val baseRequest = basicRequest.header(HeaderNames.UserAgent, userAgent)
 
   def requestAuthorizationCode(codeVerifier: String): Uri =
     uri"$host/oauth?${Map(

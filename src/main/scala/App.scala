@@ -46,8 +46,7 @@ object App extends cask.MainRoutes:
       case (_, Some(code)) =>
         Lichess.obtainAccessToken(code, codeVerifier.value).body match
           case Right(tokenResponse) =>
-            val accountResponse = Lichess.me(tokenResponse.access_token, Map("wiki" -> "true"))
-            accountResponse.body match
+            Lichess.me(tokenResponse.access_token, Map("wiki" -> "true")).body match
               case Right(account) if account.groups.exists(_.contains("Lichess team")) =>
                 val inviteResponse =
                   Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username))
@@ -55,7 +54,7 @@ object App extends cask.MainRoutes:
                   case Right(inviteLink) =>
                     cask.Response(
                       "",
-                      headers = Seq("Location" -> inviteLink.toString()),
+                      headers = Seq("Location" -> inviteLink.toString),
                       statusCode = 302
                     )
                   case Left(error) =>

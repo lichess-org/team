@@ -9,7 +9,7 @@ object Authentik:
   lazy val token = Env.get("AUTHENTIK_TOKEN")
   lazy val invitationFlow = Env.get("AUTHENTIK_INVITATION_FLOW", "enrollment-invitation")
 
-  private def baseRequest = basicRequest.auth.bearer(token).httpVersion(sttp.model.HttpVersion.HTTP_1_1)
+  private lazy val baseRequest = basicRequest.auth.bearer(token).httpVersion(sttp.model.HttpVersion.HTTP_1_1)
 
   def inviteLink(name: String, attrs: Map[String, String] = Map.empty) =
     baseRequest

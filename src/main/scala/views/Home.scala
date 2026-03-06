@@ -29,7 +29,9 @@ object Home:
                 p(
                   "Log in with Lichess to verify your membership. The ",
                   code("web:mod"),
-                  " scope is required to verify you have the `Lichess team` role."
+                  " scope is required to verify you have the ",
+                  code("Lichess team"),
+                  " role."
                 ),
                 a(href := "/login", cls := "btn-primary", "Log in with Lichess")
               ),
@@ -42,9 +44,11 @@ object Home:
               )
             )
           ),
-          if version.nonEmpty then
-            p(cls := "page-footer", a(href := s"https://github.com/lichess-org/invites/$version", version))
-          else p(cls := "page-footer", "dev")
+          p(
+            cls := "page-footer",
+            if version.nonEmpty then a(href := s"https://github.com/lichess-org/invites/$version", version)
+            else "dev"
+          )
         )
       )
     )
