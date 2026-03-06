@@ -67,7 +67,7 @@ object App extends cask.MainRoutes:
   @cask.get("/healthcheck")
   def healthcheck(): Response[String] =
     Authentik.version() match
-      case Right(_) => cask.Response("OK", statusCode = 200)
+      case Right(_) => cask.Response("OK")
       case Left(error) =>
         cask.Response(s"Failed to connect to Authentik API: ${error.getMessage}", statusCode = 500)
 

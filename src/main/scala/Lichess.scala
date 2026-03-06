@@ -40,8 +40,7 @@ object Lichess:
       .send(backend)
 
   def me(accessToken: String, queryParams: Map[String, String] = Map.empty) =
-    baseRequest
-      .auth
+    baseRequest.auth
       .bearer(accessToken)
       .get(uri"$host/api/account?$queryParams")
       .response(asJson[LichessAccountResponse])
