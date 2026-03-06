@@ -15,11 +15,10 @@ object App extends cask.MainRoutes:
   @cask.get("/login")
   def login(): Response[String] =
     val codeVerifier = PKCEUtil.generateCodeVerifier()
-    val authUrl = Lichess.requestAuthorizationCode(codeVerifier)
 
     cask.Response(
       "",
-      headers = Seq("Location" -> authUrl.toString),
+      headers = Seq("Location" -> Lichess.requestAuthorizationCode(codeVerifier).toString),
       statusCode = 302,
       cookies = Seq(
         cask.Cookie(
@@ -48,9 +47,7 @@ object App extends cask.MainRoutes:
           case Right(tokenResponse) =>
             Lichess.me(tokenResponse.access_token, Map("wiki" -> "true")).body match
               case Right(account) if account.groups.exists(_.contains("Lichess team")) =>
-                val inviteResponse =
-                  Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username))
-                inviteResponse match
+                Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username)) match
                   case Right(inviteLink) =>
                     cask.Response(
                       "",

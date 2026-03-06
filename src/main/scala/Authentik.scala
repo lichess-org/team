@@ -1,6 +1,8 @@
 import io.circe.syntax.*
+import io.circe.{ Decoder, Encoder }
 import sttp.client4.*
 import sttp.client4.circe.*
+import sttp.model.HttpVersion
 
 object Authentik:
   val backend = DefaultSyncBackend()
@@ -9,7 +11,7 @@ object Authentik:
   lazy val token = Env.get("AUTHENTIK_TOKEN")
   lazy val invitationFlow = Env.get("AUTHENTIK_INVITATION_FLOW", "enrollment-invitation")
 
-  private lazy val baseRequest = basicRequest.auth.bearer(token).httpVersion(sttp.model.HttpVersion.HTTP_1_1)
+  private lazy val baseRequest = basicRequest.auth.bearer(token).httpVersion(HttpVersion.HTTP_1_1)
 
   def inviteLink(name: String, attrs: Map[String, String] = Map.empty) =
     baseRequest
@@ -34,11 +36,11 @@ case class AuthentikInvitationRequest(
     name: String,
     fixed_data: Map[String, String],
     single_use: Boolean = true
-) derives io.circe.Encoder
+) derives Encoder
 
 case class AuthentikInvitationResponse(
     pk: String
-) derives io.circe.Decoder
+) derives Decoder
 
 case class AuthentikVersionResponse(
     build_hash: String,
@@ -47,4 +49,4 @@ case class AuthentikVersionResponse(
     version_current: String,
     version_latest: String,
     version_latest_valid: Boolean
-) derives io.circe.Decoder
+) derives Decoder

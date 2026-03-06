@@ -24,10 +24,7 @@ object Lichess:
         "code_challenge" -> PKCEUtil.generateCodeChallenge(codeVerifier)
       )}"
 
-  def obtainAccessToken(
-      code: String,
-      codeVerifier: String
-  ): Response[Either[ResponseException[String], LichessTokenResponse]] =
+  def obtainAccessToken(code: String, codeVerifier: String) =
     baseRequest
       .post(uri"$host/api/token")
       .body(
