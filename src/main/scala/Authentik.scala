@@ -5,8 +5,8 @@ import sttp.client4.circe.*
 object Authentik:
   val backend = DefaultSyncBackend()
 
-  lazy val host           = Env.get("AUTHENTIK_HOST", "http://localhost:9000")
-  lazy val token          = Env.get("AUTHENTIK_TOKEN")
+  lazy val host = Env.get("AUTHENTIK_HOST", "http://localhost:9000")
+  lazy val token = Env.get("AUTHENTIK_TOKEN")
   lazy val invitationFlow = Env.get("AUTHENTIK_INVITATION_FLOW", "enrollment-invitation")
 
   private def baseRequest = basicRequest.auth.bearer(token).httpVersion(sttp.model.HttpVersion.HTTP_1_1)

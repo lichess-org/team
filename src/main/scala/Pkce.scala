@@ -3,7 +3,7 @@ import java.security.{ MessageDigest, SecureRandom }
 import java.util.Base64
 
 object PKCEUtil:
-  private val random  = new SecureRandom()
+  private val random = new SecureRandom()
   private val encoder = Base64.getUrlEncoder.withoutPadding()
 
   def generateCodeVerifier(): String =
