@@ -12,6 +12,8 @@ object Lichess:
   lazy val redirectUri = s"$appUrl/callback"
   lazy val userAgent = s"$clientId ($appUrl)"
 
+  private def baseRequest = basicRequest.header(HeaderNames.UserAgent, userAgent)
+
   def requestAuthorizationCode(codeVerifier: String): Uri =
     uri"$host/oauth?${Map(
         "response_type" -> "code",
@@ -26,9 +28,8 @@ object Lichess:
       code: String,
       codeVerifier: String
   ): Response[Either[ResponseException[String], LichessTokenResponse]] =
-    basicRequest
+    baseRequest
       .post(uri"$host/api/token")
-      .header(HeaderNames.UserAgent, userAgent)
       .body(
         Map(
           "client_id" -> clientId,
@@ -42,9 +43,8 @@ object Lichess:
       .send(backend)
 
   def me(accessToken: String, queryParams: Map[String, String] = Map.empty) =
-    basicRequest
+    baseRequest
       .get(uri"$host/api/account?$queryParams")
-      .header(HeaderNames.UserAgent, userAgent)
       .header(HeaderNames.Authorization, s"Bearer $accessToken")
       .response(asJson[LichessAccountResponse])
       .send(backend)
