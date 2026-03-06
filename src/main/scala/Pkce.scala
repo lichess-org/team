@@ -7,7 +7,7 @@ object PKCEUtil:
   private val encoder = Base64.getUrlEncoder.withoutPadding()
 
   def generateCodeVerifier(): String =
-    val bytes = new Array[Byte](32)
+    val bytes = Array.ofDim[Byte](32)
     random.nextBytes(bytes)
     encoder.encodeToString(bytes)
 
