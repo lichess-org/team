@@ -5,28 +5,26 @@ import sttp.client4.circe.*
 object Authentik:
   val backend = DefaultSyncBackend()
 
-  def host = Env.get("AUTHENTIK_HOST", "http://localhost:9000")
-  def token = Env.get("AUTHENTIK_TOKEN")
-  def invitationFlow = Env.get("AUTHENTIK_INVITATION_FLOW", "enrollment-invitation")
+  lazy val host           = Env.get("AUTHENTIK_HOST", "http://localhost:9000")
+  lazy val token          = Env.get("AUTHENTIK_TOKEN")
+  lazy val invitationFlow = Env.get("AUTHENTIK_INVITATION_FLOW", "enrollment-invitation")
+
+  private def baseRequest = basicRequest.auth.bearer(token).httpVersion(sttp.model.HttpVersion.HTTP_1_1)
 
   def inviteLink(name: String, attrs: Map[String, String] = Map.empty) =
-    val response = basicRequest.auth
-      .bearer(token)
-      .httpVersion(sttp.model.HttpVersion.HTTP_1_1)
+    baseRequest
       .post(uri"$host/api/v3/stages/invitation/invitations/")
       .body(AuthentikInvitationRequest(name, attrs).asJson.noSpaces)
       .contentType("application/json")
       .response(asJson[AuthentikInvitationResponse])
       .send(backend)
-
-    response.body.map(invite => uri"$host/if/flow/${invitationFlow}/?${Map("itoken" -> invite.pk)}")
+      .body
+      .map(invite => uri"$host/if/flow/${invitationFlow}/?${Map("itoken" -> invite.pk)}")
 
   /** Version check request used to verify connectivity and token permissions with the Authentik API.
     */
   def version() =
-    basicRequest.auth
-      .bearer(token)
-      .httpVersion(sttp.model.HttpVersion.HTTP_1_1)
+    baseRequest
       .get(uri"$host/api/v3/admin/version/")
       .response(asJson[AuthentikVersionResponse])
       .send(backend)

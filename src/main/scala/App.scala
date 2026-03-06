@@ -19,7 +19,7 @@ object App extends cask.MainRoutes:
 
     cask.Response(
       "",
-      headers = Seq("Location" -> authUrl.toString()),
+      headers = Seq("Location" -> authUrl.toString),
       statusCode = 302,
       cookies = Seq(
         cask.Cookie(

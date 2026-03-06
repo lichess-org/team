@@ -6,11 +6,11 @@ import sttp.model.{ HeaderNames, Uri }
 object Lichess:
   val backend = DefaultSyncBackend()
 
-  def host = Env.get("LICHESS_HOST", "https://lichess.org")
-  val clientId = "app.lichess.invites"
-  def appUrl = Env.get("APP_URL", s"http://localhost:${Env.get("PORT", "8080")}")
-  def redirectUri = s"$appUrl/callback"
-  def userAgent = s"$clientId ($appUrl)"
+  lazy val host        = Env.get("LICHESS_HOST", "https://lichess.org")
+  val clientId         = "app.lichess.invites"
+  lazy val appUrl      = Env.get("APP_URL", s"http://localhost:${Env.get("PORT", "8080")}")
+  lazy val redirectUri = s"$appUrl/callback"
+  lazy val userAgent   = s"$clientId ($appUrl)"
 
   def requestAuthorizationCode(codeVerifier: String): Uri =
     uri"$host/oauth?${Map(
