@@ -1,5 +1,5 @@
-import io.circe.syntax.*
 import io.circe.{ Decoder, Encoder }
+import io.circe.syntax.*
 import sttp.client4.*
 import sttp.client4.circe.*
 import sttp.model.HttpVersion

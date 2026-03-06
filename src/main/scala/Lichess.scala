@@ -1,7 +1,7 @@
 import io.circe.Decoder
 import sttp.client4.*
 import sttp.client4.circe.*
-import sttp.model.{ HeaderNames, Uri }
+import sttp.model.HeaderNames
 
 object Lichess:
   val backend = DefaultSyncBackend()
@@ -14,7 +14,7 @@ object Lichess:
 
   private lazy val baseRequest = basicRequest.header(HeaderNames.UserAgent, userAgent)
 
-  def requestAuthorizationCode(codeVerifier: String): Uri =
+  def requestAuthorizationCode(codeVerifier: String) =
     uri"$host/oauth?${Map(
         "response_type" -> "code",
         "client_id" -> clientId,
@@ -41,8 +41,9 @@ object Lichess:
 
   def me(accessToken: String, queryParams: Map[String, String] = Map.empty) =
     baseRequest
+      .auth
+      .bearer(accessToken)
       .get(uri"$host/api/account?$queryParams")
-      .header(HeaderNames.Authorization, s"Bearer $accessToken")
       .response(asJson[LichessAccountResponse])
       .send(backend)
 
