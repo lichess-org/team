@@ -31,32 +31,42 @@ object App extends cask.MainRoutes:
     )
 
   @cask.get("/callback")
-  def callback(codeVerifier: cask.Cookie, code: String, @unused state: String): Response[String] =
-    val response = Lichess.obtainAccessToken(code, codeVerifier.value)
-
-    response.body match
-      case Right(tokenResponse) =>
-        val accountResponse = Lichess.me(tokenResponse.access_token, Map("wiki" -> "true"))
-        accountResponse.body match
-          case Right(account) if account.groups.exists(_.contains("Lichess team")) =>
-            val inviteResponse =
-              Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username))
-            inviteResponse match
-              case Right(inviteLink) =>
+  def callback(
+      codeVerifier: cask.Cookie,
+      code: Option[String] = None,
+      error_description: Option[String] = None,
+      @unused state: Option[String] = None,
+      @unused error: Option[String] = None
+  ): Response[String] =
+    (error_description, code) match
+      case (Some(desc), _) =>
+        cask.Response(s"Error during authentication: $desc", statusCode = 400)
+      case (_, None) =>
+        cask.Response("Missing authorization code.", statusCode = 400)
+      case (_, Some(code)) =>
+        Lichess.obtainAccessToken(code, codeVerifier.value).body match
+          case Right(tokenResponse) =>
+            val accountResponse = Lichess.me(tokenResponse.access_token, Map("wiki" -> "true"))
+            accountResponse.body match
+              case Right(account) if account.groups.exists(_.contains("Lichess team")) =>
+                val inviteResponse =
+                  Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username))
+                inviteResponse match
+                  case Right(inviteLink) =>
+                    cask.Response(
+                      "",
+                      headers = Seq("Location" -> inviteLink.toString()),
+                      statusCode = 302
+                    )
+                  case Left(error) =>
+                    cask.Response(s"Failed to create invitation: ${error.getMessage}", statusCode = 500)
+              case _ =>
                 cask.Response(
-                  "",
-                  headers = Seq("Location" -> inviteLink.toString()),
-                  statusCode = 302
+                  "Unauthorized: You must be a member of the Lichess team to access this service.",
+                  statusCode = 401
                 )
-              case Left(error) =>
-                cask.Response(s"Failed to create invitation: ${error.getMessage}", statusCode = 500)
-          case _ =>
-            cask.Response(
-              "Unauthorized: You must be a member of the Lichess team to access this service.",
-              statusCode = 401
-            )
-      case Left(error) =>
-        cask.Response(s"Failed to obtain access token: ${error.getMessage}", statusCode = 500)
+          case Left(error) =>
+            cask.Response(s"Failed to obtain access token: ${error.getMessage}", statusCode = 500)
 
   @cask.get("/healthcheck")
   def healthcheck(): Response[String] =
