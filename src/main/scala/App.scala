@@ -14,7 +14,7 @@ object App extends cask.MainRoutes:
 
   @cask.get("/login")
   def login(): Response[String] =
-    val codeVerifier = PKCEUtil.generateCodeVerifier()
+    val codeVerifier = Pkce.generateCodeVerifier()
 
     cask.Response(
       "",

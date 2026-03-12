@@ -21,7 +21,7 @@ object Lichess:
         "redirect_uri" -> redirectUri,
         "scope" -> "web:mod",
         "code_challenge_method" -> "S256",
-        "code_challenge" -> PKCEUtil.generateCodeChallenge(codeVerifier)
+        "code_challenge" -> Pkce.generateCodeChallenge(codeVerifier)
       )}"
 
   def obtainAccessToken(code: String, codeVerifier: String) =

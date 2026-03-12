@@ -2,7 +2,7 @@ import java.nio.charset.StandardCharsets
 import java.security.{ MessageDigest, SecureRandom }
 import java.util.Base64
 
-object PKCEUtil:
+object Pkce:
   private val random = new SecureRandom()
   private val encoder = Base64.getUrlEncoder.withoutPadding()
 
