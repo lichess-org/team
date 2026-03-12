@@ -4,7 +4,7 @@ import sttp.client4.circe.*
 import sttp.model.HeaderNames
 
 object Lichess:
-  val backend = DefaultSyncBackend()
+  lazy val backend = DefaultSyncBackend()
 
   lazy val host = Env.get("LICHESS_HOST", "https://lichess.org")
   val clientId = "app.lichess.invites"

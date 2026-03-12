@@ -5,7 +5,7 @@ import sttp.client4.circe.*
 import sttp.model.HttpVersion
 
 object Authentik:
-  val backend = DefaultSyncBackend()
+  lazy val backend = DefaultSyncBackend()
 
   lazy val host = Env.get("AUTHENTIK_HOST", "http://localhost:9000")
   lazy val token = Env.get("AUTHENTIK_TOKEN")
