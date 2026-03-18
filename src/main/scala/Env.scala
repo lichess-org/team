@@ -6,6 +6,6 @@ object Env:
     sys.env
       .get(key)
       .orElse(
-        sys.env.get(s"${key}_FILE").flatMap(path => Try(Files.readString(Path.of(path))).toOption)
+        sys.env.get(s"${key}_FILE").flatMap(path => Try(Files.readString(Path.of(path)).trim).toOption)
       )
       .getOrElse(default)
