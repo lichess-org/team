@@ -21,7 +21,7 @@ lazy val app = (project in file("."))
       "com.lihaoyi" %% "scalatags" % "0.13.1",
       "com.softwaremill.sttp.client4" %% "circe" % "4.0.19",
       "org.polyvariant" %% "sttp-oauth2" % "0.21.0",
-      "org.scala-lang" %% "toolkit" % "0.7.0",
+      "org.scala-lang" %% "toolkit" % "0.9.1",
     ),
     fork := true,
     Compile / mainClass  := Some("App"),

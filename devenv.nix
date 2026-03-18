@@ -6,9 +6,14 @@
     pkgs.yamlfmt
   ];
 
-  languages.java.enable = true;
-  languages.java.jdk.package = pkgs.openjdk25;
-  
-  languages.scala.enable = true;
-  languages.scala.sbt.enable = true;
+  languages = {
+    java = {
+      enable = true;
+      jdk.package = pkgs.openjdk25;
+    };
+    scala = {
+      enable = true;
+      sbt.enable = true;
+    };
+  };
 }
