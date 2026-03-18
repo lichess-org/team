@@ -4,7 +4,7 @@ sequenceDiagram
     lichess.org->>+invite: yes, you are
     invite->>+Authentik: request an invitation
     Authentik->>+invite: single-use invite link
-    invite->>+Authentik: follow invite link
+    invite->>+Authentik: follow invite link to register
 ```
 
 ## Usage
