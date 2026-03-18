@@ -23,8 +23,6 @@ object Authentik:
       .body
       .map(invite => uri"$host/if/flow/${invitationFlow}/?${Map("itoken" -> invite.pk)}")
 
-  /** Version check request used to verify connectivity and token permissions with the Authentik API.
-    */
   def version() =
     baseRequest
       .get(uri"$host/api/v3/admin/version/")
