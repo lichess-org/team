@@ -24,7 +24,8 @@ object App extends cask.MainRoutes:
         cask.Cookie(
           name = "codeVerifier",
           value = codeVerifier,
-          path = "/"
+          path = "/",
+          httpOnly = true
         )
       )
     )
