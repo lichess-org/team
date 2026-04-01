@@ -40,11 +40,4 @@ case class AuthentikInvitationResponse(
     pk: String
 ) derives Decoder
 
-case class AuthentikVersionResponse(
-    build_hash: String,
-    outdated: Boolean,
-    outpost_outdated: Boolean,
-    version_current: String,
-    version_latest: String,
-    version_latest_valid: Boolean
-) derives Decoder
+case class AuthentikVersionResponse() derives Decoder
