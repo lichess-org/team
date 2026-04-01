@@ -6,11 +6,13 @@ object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
 
+  private val homePage = Home.render(Env.get("VERSION", ""))
+
   @cask.staticResources("/static")
   def staticEndpoint(): String = "."
 
   @cask.get("/")
-  def home() = Home.render(Env.get("VERSION", ""))
+  def home() = homePage
 
   @cask.get("/login")
   def login(): Response[String] =
