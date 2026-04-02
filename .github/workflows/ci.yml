@@ -12,6 +12,7 @@ jobs:
       matrix:
         command:
           - compile
+          - test
           - scalafmtCheckAll
           - scalafixAll --check
     steps:
