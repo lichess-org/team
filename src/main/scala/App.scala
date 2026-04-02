@@ -6,6 +6,8 @@ object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
 
+  private val lichessTeam =
+    "Lichess team" // must match https://github.com/lichess-org/lila/blob/93488dc9894d455162a3278a66bf693631686c20/modules/core/src/main/perm.scala#L109
   private val homePage = Home.render(Env.get("VERSION", ""))
 
   @cask.staticResources("/static")
@@ -49,7 +51,7 @@ object App extends cask.MainRoutes:
         Lichess.obtainAccessToken(code, codeVerifier.value).body match
           case Right(tokenResponse) =>
             Lichess.me(tokenResponse.access_token, Map("wiki" -> "true")).body match
-              case Right(account) if account.groups.exists(_.contains("Lichess team")) =>
+              case Right(account) if account.groups.exists(_.contains(lichessTeam)) =>
                 Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username)) match
                   case Right(inviteLink) =>
                     cask.Response(
@@ -61,7 +63,7 @@ object App extends cask.MainRoutes:
                     cask.Response(s"Failed to create invitation: ${error.getMessage}", statusCode = 500)
               case Right(_) =>
                 cask.Response(
-                  "Unauthorized: You must be a member of the Lichess team to access this service.",
+                  s"Unauthorized: You must be a member of the $lichessTeam to access this service.",
                   statusCode = 401
                 )
               case Left(error) =>
