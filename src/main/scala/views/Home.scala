@@ -29,7 +29,7 @@ object Home:
                   "Log in with Lichess to verify your membership. The ",
                   code(scopes.mkString(" ")),
                   scopes.length match
-                    case 1 => " scope is"
+                    case 1 => " scope is "
                     case _ => " scopes are ",
                   "required to verify you have the ",
                   code(teamName),
