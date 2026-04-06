@@ -93,7 +93,8 @@ object App extends cask.MainRoutes:
 
   @cask.get("/if/flow/:flowSlug")
   def devAuthentikFlow(flowSlug: String, itoken: Option[String] = None) =
-    if devMode then cask.Response(s"Success: Emulated enrollment for $flowSlug with token ${itoken.getOrElse("none")}")
+    if devMode then
+      cask.Response(s"Success: Emulated enrollment for $flowSlug with token ${itoken.getOrElse("none")}")
     else cask.Response("", statusCode = 404)
 
   initialize()
