@@ -1,5 +1,5 @@
 import cask.model.Response
-import sttp.model.HeaderNames
+import sttp.model.HeaderNames.{ ContentType, Location }
 import views.Home
 
 import scala.annotation.unused
@@ -25,8 +25,7 @@ object App extends cask.MainRoutes:
 
     cask.Response(
       "",
-      headers =
-        Seq(HeaderNames.Location -> Lichess.requestAuthorizationCode(codeVerifier, requiredScopes).toString),
+      headers = Seq(Location -> Lichess.requestAuthorizationCode(codeVerifier, requiredScopes).toString),
       statusCode = 302,
       cookies = Seq(
         cask.Cookie(
@@ -61,7 +60,7 @@ object App extends cask.MainRoutes:
           inviteLink <- inviteRes.left.map(error => s"Failed to create invitation: ${error.getMessage}")
         yield cask.Response(
           "",
-          headers = Seq(HeaderNames.Location -> inviteLink.toStringSafe()),
+          headers = Seq(Location -> inviteLink.toStringSafe()),
           statusCode = 302
         )
         res.fold(errorMsg => cask.Response(errorMsg, statusCode = 500), identity)
@@ -80,13 +79,13 @@ object App extends cask.MainRoutes:
     if devMode then
       cask.Response(
         """{"pk":"dev-invitation-token"}""",
-        headers = Seq(HeaderNames.ContentType -> "application/json")
+        headers = Seq(ContentType -> "application/json")
       )
     else cask.Response("", statusCode = 404)
 
   @cask.get("/api/v3/admin/version/")
   def devAuthentikVersion() =
-    if devMode then cask.Response("{}", headers = Seq(HeaderNames.ContentType -> "application/json"))
+    if devMode then cask.Response("{}", headers = Seq(ContentType -> "application/json"))
     else cask.Response("", statusCode = 404)
 
   @cask.get("/if/flow/:flowSlug")

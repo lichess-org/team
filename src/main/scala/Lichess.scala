@@ -1,7 +1,7 @@
 import io.circe.Decoder
 import sttp.client4.*
 import sttp.client4.circe.*
-import sttp.model.HeaderNames
+import sttp.model.HeaderNames.UserAgent
 
 object Lichess:
   lazy val backend = DefaultSyncBackend()
@@ -12,7 +12,7 @@ object Lichess:
   lazy val redirectUri = s"$appUrl/callback"
   lazy val userAgent = s"$clientId ($appUrl)"
 
-  private lazy val baseRequest = basicRequest.header(HeaderNames.UserAgent, userAgent)
+  private lazy val baseRequest = basicRequest.header(UserAgent, userAgent)
 
   def requestAuthorizationCode(codeVerifier: String, scopes: Seq[String]) =
     uri"$host/oauth?${Map(
