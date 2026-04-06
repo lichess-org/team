@@ -8,7 +8,7 @@ object App extends cask.MainRoutes:
 
   private val lichessTeam =
     "Lichess team" // must match https://github.com/lichess-org/lila/blob/93488dc9894d455162a3278a66bf693631686c20/modules/core/src/main/perm.scala#L109
-  private val homePage = Home.render(Env.get("VERSION", ""))
+  private val homePage = Home.render(Env.get("VERSION", ""), lichessTeam)
 
   @cask.staticResources("/static")
   def staticEndpoint(): String = "."
