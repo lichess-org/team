@@ -9,7 +9,8 @@ object App extends cask.MainRoutes:
 
   private val lichessTeam =
     "Lichess team" // must match https://github.com/lichess-org/lila/blob/93488dc9894d455162a3278a66bf693631686c20/modules/core/src/main/perm.scala#L109
-  private val homePage = Home.render(Env.get("VERSION", ""), lichessTeam)
+  private val requiredScopes = Seq("web:mod")
+  private val homePage = Home.render(Env.get("VERSION", ""), lichessTeam, requiredScopes)
 
   @cask.staticResources("/static")
   def staticEndpoint(): String = "."
@@ -23,7 +24,7 @@ object App extends cask.MainRoutes:
 
     cask.Response(
       "",
-      headers = Seq("Location" -> Lichess.requestAuthorizationCode(codeVerifier).toString),
+      headers = Seq("Location" -> Lichess.requestAuthorizationCode(codeVerifier, requiredScopes).toString),
       statusCode = 302,
       cookies = Seq(
         cask.Cookie(

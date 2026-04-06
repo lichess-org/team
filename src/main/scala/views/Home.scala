@@ -6,7 +6,7 @@ import scalatags.Text.tags2.title as titleTag
 object Home:
   val siteName = "Lichess Team"
 
-  def render(version: String, teamName: String) =
+  def render(version: String, teamName: String, scopes: Seq[String]) =
     html(
       head(
         titleTag(siteName),
@@ -27,8 +27,11 @@ object Home:
                 p(cls := "section-label", "Get started"),
                 p(
                   "Log in with Lichess to verify your membership. The ",
-                  code("web:mod"),
-                  " scope is required to verify you have the ",
+                  code(scopes.mkString(" ")),
+                  scopes.length match
+                    case 1 => " scope is"
+                    case _ => " scopes are ",
+                  "required to verify you have the ",
                   code(teamName),
                   " role."
                 ),

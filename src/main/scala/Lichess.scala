@@ -14,12 +14,12 @@ object Lichess:
 
   private lazy val baseRequest = basicRequest.header(HeaderNames.UserAgent, userAgent)
 
-  def requestAuthorizationCode(codeVerifier: String) =
+  def requestAuthorizationCode(codeVerifier: String, scopes: Seq[String]) =
     uri"$host/oauth?${Map(
         "response_type" -> "code",
         "client_id" -> clientId,
         "redirect_uri" -> redirectUri,
-        "scope" -> "web:mod",
+        "scope" -> scopes.mkString(" "),
         "code_challenge_method" -> "S256",
         "code_challenge" -> Pkce.generateCodeChallenge(codeVerifier)
       )}"
