@@ -1,4 +1,5 @@
 import cask.model.Response
+import sttp.model.HeaderNames
 import views.Home
 
 import scala.annotation.unused
@@ -24,7 +25,8 @@ object App extends cask.MainRoutes:
 
     cask.Response(
       "",
-      headers = Seq("Location" -> Lichess.requestAuthorizationCode(codeVerifier, requiredScopes).toString),
+      headers =
+        Seq(HeaderNames.Location -> Lichess.requestAuthorizationCode(codeVerifier, requiredScopes).toString),
       statusCode = 302,
       cookies = Seq(
         cask.Cookie(
@@ -57,7 +59,11 @@ object App extends cask.MainRoutes:
           _ <- Either.cond(isMember, (), s"Unauthorized: You must be a member of $lichessTeam.")
           inviteRes = Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username))
           inviteLink <- inviteRes.left.map(error => s"Failed to create invitation: ${error.getMessage}")
-        yield cask.Response("", headers = Seq("Location" -> inviteLink.toStringSafe()), statusCode = 302)
+        yield cask.Response(
+          "",
+          headers = Seq(HeaderNames.Location -> inviteLink.toStringSafe()),
+          statusCode = 302
+        )
         res.fold(errorMsg => cask.Response(errorMsg, statusCode = 500), identity)
 
   @cask.get("/healthcheck")
@@ -72,12 +78,15 @@ object App extends cask.MainRoutes:
   @cask.post("/api/v3/stages/invitation/invitations/")
   def devAuthentikInvitations() =
     if devMode then
-      cask.Response("""{"pk":"dev-invitation-token"}""", headers = Seq("Content-Type" -> "application/json"))
+      cask.Response(
+        """{"pk":"dev-invitation-token"}""",
+        headers = Seq(HeaderNames.ContentType -> "application/json")
+      )
     else cask.Response("", statusCode = 404)
 
   @cask.get("/api/v3/admin/version/")
   def devAuthentikVersion() =
-    if devMode then cask.Response("{}", headers = Seq("Content-Type" -> "application/json"))
+    if devMode then cask.Response("{}", headers = Seq(HeaderNames.ContentType -> "application/json"))
     else cask.Response("", statusCode = 404)
 
   @cask.get("/if/flow/:flowSlug")
