@@ -4,7 +4,7 @@ import scalatags.Text.all.*
 import scalatags.Text.tags2.title as titleTag
 
 object Home:
-  val siteName = "Lichess Staff"
+  val siteName = "Lichess Team"
 
   def render(version: String) =
     html(
@@ -38,7 +38,7 @@ object Home:
           ),
           p(
             cls := "page-footer",
-            if version.nonEmpty then a(href := s"https://github.com/lichess-org/staff/$version", version)
+            if version.nonEmpty then a(href := s"https://github.com/lichess-org/team/$version", version)
             else "dev"
           )
         )

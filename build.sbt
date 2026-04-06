@@ -15,7 +15,7 @@ inThisBuild(
 lazy val app = (project in file("."))
   .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
-    name := "staff",
+    name := "team",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "cask" % "0.11.0",
       "com.lihaoyi" %% "scalatags" % "0.13.1",
@@ -27,7 +27,7 @@ lazy val app = (project in file("."))
     Compile / mainClass  := Some("App"),
     dockerBaseImage      := "eclipse-temurin:25-jdk-noble",
     dockerRepository     := Some("ghcr.io"),
-    Docker / packageName := "fitztrev/staff",
+    Docker / packageName := "fitztrev/team",
     dockerUpdateLatest   := true,
     dockerExposedPorts   := Seq(8080),
     dockerEnvVars := Map(

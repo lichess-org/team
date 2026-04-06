@@ -7,7 +7,7 @@ object Lichess:
   lazy val backend = DefaultSyncBackend()
 
   lazy val host = Env.get("LICHESS_HOST", "https://lichess.org")
-  val clientId = "app.lichess.staff"
+  val clientId = "app.lichess.team"
   lazy val appUrl = Env.get("APP_URL", s"http://localhost:${Env.get("PORT", "8080")}")
   lazy val redirectUri = s"$appUrl/callback"
   lazy val userAgent = s"$clientId ($appUrl)"
