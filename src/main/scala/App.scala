@@ -78,4 +78,22 @@ object App extends cask.MainRoutes:
       case Left(error) =>
         cask.Response(s"Failed to connect to Authentik API: ${error.getMessage}", statusCode = 500)
 
+  private val devMode = sys.env.get("AUTHENTIK_HOST").isEmpty
+
+  @cask.post("/api/v3/stages/invitation/invitations/")
+  def devAuthentikInvitations() =
+    if devMode then
+      cask.Response("""{"pk":"dev-invitation-token"}""", headers = Seq("Content-Type" -> "application/json"))
+    else cask.Response("", statusCode = 404)
+
+  @cask.get("/api/v3/admin/version/")
+  def devAuthentikVersion() =
+    if devMode then cask.Response("{}", headers = Seq("Content-Type" -> "application/json"))
+    else cask.Response("", statusCode = 404)
+
+  @cask.get("/if/flow/:flowSlug")
+  def devAuthentikFlow(flowSlug: String, itoken: Option[String] = None) =
+    if devMode then cask.Response(s"Success: Emulated enrollment for $flowSlug with token ${itoken.getOrElse("none")}")
+    else cask.Response("", statusCode = 404)
+
   initialize()

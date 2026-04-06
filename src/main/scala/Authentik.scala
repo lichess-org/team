@@ -7,7 +7,7 @@ import sttp.model.HttpVersion
 object Authentik:
   lazy val backend = DefaultSyncBackend()
 
-  lazy val host = Env.get("AUTHENTIK_HOST", "http://localhost:9000")
+  lazy val host = Env.get("AUTHENTIK_HOST", s"http://localhost:${Env.get("PORT", "8080")}")
   lazy val token = Env.get("AUTHENTIK_TOKEN")
   lazy val invitationFlow = Env.get("AUTHENTIK_INVITATION_FLOW", "enrollment-invitation")
 

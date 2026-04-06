@@ -11,18 +11,25 @@ sequenceDiagram
 
 ```bash
 sbt app/run
+# open http://localhost:8080/
 ```
 
-http://localhost:8080/
+```bash
+# or use a custom port with a different local lila hostname
+PORT=8000 \
+LICHESS_HOST=http://localhost:9663 \
+sbt app/run
+# open http://localhost:8000/
+```
 
 ```bash
-### or with custom port and Lichess host:
-
+# or customize everything
 PORT=8000 \
 LICHESS_HOST=http://localhost:8080 \
 AUTHENTIK_HOST=http://localhost:9000 \
 AUTHENTIK_TOKEN=token \
 sbt app/run
+# open http://localhost:8000/
 ```
 
 ### Development
