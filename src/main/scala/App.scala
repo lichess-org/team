@@ -2,6 +2,7 @@ import cask.model.Response
 import views.Home
 
 import scala.annotation.unused
+
 object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
   override def host: String = "0.0.0.0"
@@ -43,33 +44,20 @@ object App extends cask.MainRoutes:
       @unused error: Option[String] = None
   ): Response[String] =
     (error_description, code) match
-      case (Some(desc), _) =>
-        cask.Response(s"Error during authentication: $desc", statusCode = 400)
-      case (_, None) =>
-        cask.Response("Missing authorization code.", statusCode = 400)
+      case (Some(desc), _) => cask.Response(s"Error during authentication: $desc", statusCode = 400)
+      case (_, None) => cask.Response("Missing authorization code.", statusCode = 400)
       case (_, Some(code)) =>
-        Lichess.obtainAccessToken(code, codeVerifier.value).body match
-          case Right(tokenResponse) =>
-            Lichess.me(tokenResponse.access_token, Map("wiki" -> "true")).body match
-              case Right(account) if account.groups.exists(_.contains(lichessTeam)) =>
-                Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username)) match
-                  case Right(inviteLink) =>
-                    cask.Response(
-                      "",
-                      headers = Seq("Location" -> inviteLink.toString),
-                      statusCode = 302
-                    )
-                  case Left(error) =>
-                    cask.Response(s"Failed to create invitation: ${error.getMessage}", statusCode = 500)
-              case Right(_) =>
-                cask.Response(
-                  s"Unauthorized: You must be a member of the $lichessTeam to access this service.",
-                  statusCode = 401
-                )
-              case Left(error) =>
-                cask.Response(s"Failed to fetch account: ${error.getMessage}", statusCode = 500)
-          case Left(error) =>
-            cask.Response(s"Failed to obtain access token: ${error.getMessage}", statusCode = 500)
+        val res = for
+          tokenRes = Lichess.obtainAccessToken(code, codeVerifier.value).body.map(_.access_token)
+          token <- tokenRes.left.map(error => s"Failed to obtain access token: ${error.getMessage}")
+          accountRes = Lichess.me(token, Map("wiki" -> "true")).body
+          account <- accountRes.left.map(error => s"Failed to fetch account: ${error.getMessage}")
+          isMember = account.groups.exists(_.contains(lichessTeam))
+          _ <- Either.cond(isMember, (), s"Unauthorized: You must be a member of $lichessTeam.")
+          inviteRes = Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username))
+          inviteLink <- inviteRes.left.map(error => s"Failed to create invitation: ${error.getMessage}")
+        yield cask.Response("", headers = Seq("Location" -> inviteLink.toStringSafe()), statusCode = 302)
+        res.fold(errorMsg => cask.Response(errorMsg, statusCode = 500), identity)
 
   @cask.get("/healthcheck")
   def healthcheck(): Response[String] =
