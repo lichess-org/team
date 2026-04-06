@@ -19,7 +19,7 @@ lazy val app = (project in file("."))
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "cask" % "0.11.0",
       "com.lihaoyi" %% "scalatags" % "0.13.1",
-      "com.softwaremill.sttp.client4" %% "circe" % "4.0.19",
+      "com.softwaremill.sttp.client4" %% "circe" % "4.0.21",
       "org.scala-lang" %% "toolkit" % "0.9.1",
       "org.scala-lang" %% "toolkit-test" % "0.9.1" % Test,
     ),
