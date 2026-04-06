@@ -1,10 +1,10 @@
 ```mermaid
 sequenceDiagram
-    invite->>+lichess.org: am I a Lichess team member?
-    lichess.org->>+invite: yes, you are
-    invite->>+Authentik: request an invitation
-    Authentik->>+invite: single-use invite link
-    invite->>+Authentik: follow invite link to register
+    this app->>+lichess.org: am I a Lichess team member?
+    lichess.org->>+this app: yes, you are
+    this app->>+Authentik: request an invitation
+    Authentik->>+this app: single-use invite link
+    this app->>+Authentik: follow invite link to register
 ```
 
 ## Usage
@@ -42,5 +42,5 @@ To test the Docker image locally:
 ```bash
 sbt Docker/publishLocal
 
-docker run --rm -p 8000:8080 lichess-invite
+docker run --rm -p 8000:8080 lichess-staff
 ```
