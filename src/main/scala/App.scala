@@ -1,4 +1,5 @@
 import cask.model.Response
+import sttp.client4.ResponseException.UnexpectedStatusCode
 import sttp.model.HeaderNames.{ ContentType, Location }
 import views.Home
 
@@ -53,9 +54,17 @@ object App extends cask.MainRoutes:
           tokenRes = Lichess.obtainAccessToken(code, codeVerifier.value).body.map(_.access_token)
           token <- tokenRes.left.map(error => s"Failed to obtain access token: ${error.getMessage}")
           accountRes = Lichess.me(token, Map("wiki" -> "true")).body
-          account <- accountRes.left.map(error => s"Failed to fetch account: ${error.getMessage}")
+          account <- accountRes.left.map {
+            case error: UnexpectedStatusCode[?] if error.body.toString.contains("Wiki access not granted") =>
+              s"Unauthorized: Your Lichess account is not a member of `$lichessTeam`."
+            case error => s"Failed to fetch account: ${error.getMessage}"
+          }
           isMember = account.groups.exists(_.contains(lichessTeam))
-          _ <- Either.cond(isMember, (), s"Unauthorized: You must be a member of $lichessTeam.")
+          _ <- Either.cond(
+            isMember,
+            (),
+            s"Unauthorized: Your Lichess account is not a member of `$lichessTeam`."
+          )
           inviteRes = Authentik.inviteLink(s"lichess-${account.username}", Map("lichess" -> account.username))
           inviteLink <- inviteRes.left.map(error => s"Failed to create invitation: ${error.getMessage}")
         yield cask.Response(
