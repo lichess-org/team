@@ -41,6 +41,7 @@ object Home:
           ),
           p(
             cls := "page-footer",
+            "version: ",
             if version.nonEmpty then
               a(href := s"https://github.com/lichess-org/team/commit/$version", version)
             else "dev"
