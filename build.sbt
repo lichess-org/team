@@ -22,6 +22,7 @@ lazy val app = (project in file("."))
       "com.softwaremill.sttp.client4" %% "circe" % "4.0.21",
       "org.scala-lang" %% "toolkit" % "0.9.1",
       "org.scala-lang" %% "toolkit-test" % "0.9.1" % Test,
+      "com.outr" %% "scribe" % "3.19.0",
     ),
     fork := true,
     Compile / mainClass  := Some("App"),
