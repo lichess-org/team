@@ -120,6 +120,14 @@ object App extends cask.MainRoutes:
       cask.Response(s"Success: Emulated enrollment for $flowSlug with token ${itoken.getOrElse("none")}")
     else cask.Response("", statusCode = 404)
 
+  private def retryWithBackoff[E, A](attempts: Int, delayMs: Long)(f: => Either[E, A]): Either[E, A] =
+    f match
+      case right @ Right(_) => right
+      case left if attempts <= 1 => left
+      case _ =>
+        Thread.sleep(delayMs)
+        retryWithBackoff(attempts - 1, delayMs * 2)(f)
+
   private lazy val authentikWebhookSecret = Env.get("AUTHENTIK_WEBHOOK_SECRET", "test-secret")
 
   @cask.post("/authentik-event/:secretKey")
@@ -138,10 +146,9 @@ object App extends cask.MainRoutes:
             val result = for
               email <- payload.event_user_email.toRight("Missing user email in event")
               username <- payload.event_user_username.toRight("Missing username in event")
-              user <- Grafana
-                .lookupUser(email)
-                .left
-                .map(e => s"Failed to lookup Grafana user $username $email: ${e.getMessage}")
+              user <- retryWithBackoff(3, 1000)(Grafana.lookupUser(email)).left.map(e =>
+                s"Failed to lookup Grafana user $username $email: ${e.getMessage}"
+              )
               _ <- Grafana
                 .addTeamMember(user.id)
                 .left
