@@ -150,7 +150,7 @@ object App extends cask.MainRoutes:
             yield ()
             result.fold(
               errorMsg =>
-                scribe.error(errorMsg); cask.Response(errorMsg)
+                scribe.error(errorMsg); cask.Response(errorMsg, statusCode = 500)
               ,
               _ => cask.Response("OK - Event processed successfully")
             )

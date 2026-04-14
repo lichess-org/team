@@ -1,6 +1,7 @@
 import io.circe.syntax.*
 import io.circe.{ Decoder, Encoder }
 import sttp.client4.*
+import sttp.client4.ResponseException.UnexpectedStatusCode
 import sttp.client4.circe.*
 
 object Grafana:
@@ -35,6 +36,11 @@ object Grafana:
       .response(asJson[GrafanaMessageResponse])
       .send(backend)
       .body
+      .left.flatMap {
+        case e: UnexpectedStatusCode[?] if e.body.toString.contains("User is already added to this team") =>
+          Right(GrafanaMessageResponse("User is already added to this team"))
+        case e => Left(e)
+      }
 
 case class GrafanaOrgResponse(id: Int, name: String) derives Decoder
 
