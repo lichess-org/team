@@ -137,15 +137,16 @@ object App extends cask.MainRoutes:
           if payload.body.exists(_.contains("Grafana")) then
             val result = for
               email <- payload.event_user_email.toRight("Missing user email in event")
+              username <- payload.event_user_username.toRight("Missing username in event")
               user <- Grafana
                 .lookupUser(email)
                 .left
-                .map(e => s"Failed to lookup Grafana user $email: ${e.getMessage}")
+                .map(e => s"Failed to lookup Grafana user $username $email: ${e.getMessage}")
               _ <- Grafana
                 .addTeamMember(user.id)
                 .left
-                .map(e => s"Failed to add $email to Grafana team: ${e.getMessage}")
-              _ = scribe.info(s"Added $email to Grafana team")
+                .map(e => s"Failed to add $username to Grafana team: ${e.getMessage}")
+              _ = scribe.info(s"Added $username to Grafana team")
             yield ()
             result.fold(
               errorMsg =>
@@ -159,5 +160,6 @@ object App extends cask.MainRoutes:
 
 case class AuthentikEventPayload(
     body: Option[String] = None,
-    event_user_email: Option[String] = None
+    event_user_email: Option[String] = None,
+    event_user_username: Option[String] = None
 ) derives Decoder
