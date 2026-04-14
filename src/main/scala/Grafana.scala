@@ -36,7 +36,8 @@ object Grafana:
       .response(asJson[GrafanaMessageResponse])
       .send(backend)
       .body
-      .left.flatMap {
+      .left
+      .flatMap {
         case e: UnexpectedStatusCode[?] if e.body.toString.contains("User is already added to this team") =>
           Right(GrafanaMessageResponse("User is already added to this team"))
         case e => Left(e)
