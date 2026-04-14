@@ -120,29 +120,36 @@ object App extends cask.MainRoutes:
 
   private lazy val authentikWebhookSecret = Env.get("AUTHENTIK_WEBHOOK_SECRET", "test-secret")
 
-  @cask.postJson("/authentik-event/:secretKey")
-  def authentikEvent(secretKey: String, body: String, event_user_email: String) =
+  @cask.postJsonCached("/authentik-event/:secretKey")
+  def authentikEvent(
+      request: cask.Request,
+      secretKey: String,
+      body: Option[String] = None,
+      event_user_email: Option[String] = None
+  ) =
     if secretKey != authentikWebhookSecret then
       scribe.warn(s"Received request with invalid secret key: $secretKey")
       cask.Response("Unauthorized", statusCode = 401)
     else if body.contains("Grafana") then
+      scribe.info(s"Received event: ${request.text()}")
       val result = for
+        email <- event_user_email.toRight(s"Missing user email in event")
         user <- Grafana
-          .lookupUser(event_user_email)
+          .lookupUser(email)
           .left
-          .map(e => s"Failed to lookup Grafana user $event_user_email: ${e.getMessage}")
+          .map(e => s"Failed to lookup Grafana user $email: ${e.getMessage}")
         _ <- Grafana
           .addTeamMember(user.id)
           .left
-          .map(e => s"Failed to add $event_user_email to Grafana team: ${e.getMessage}")
-        _ = scribe.info(s"Added $event_user_email to Grafana team")
+          .map(e => s"Failed to add $email to Grafana team: ${e.getMessage}")
+        _ = scribe.info(s"Added $email to Grafana team")
       yield ()
       result.fold(
         errorMsg =>
           scribe.error(errorMsg); cask.Response(errorMsg, statusCode = 500)
         ,
-        _ => cask.Response("OK")
+        _ => cask.Response("OK - Event processed successfully")
       )
-    else cask.Response("OK")
+    else cask.Response("OK - Ignored event")
 
   initialize()
