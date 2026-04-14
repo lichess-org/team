@@ -128,6 +128,7 @@ object App extends cask.MainRoutes:
       scribe.warn(s"Received request with invalid secret key: $secretKey")
       cask.Response("Unauthorized", statusCode = 401)
     else
+      scribe.info(request.text())
       decode[AuthentikEventPayload](request.text()) match
         case Left(e) =>
           scribe.error(s"Failed to decode JSON payload: ${e.getMessage}")
