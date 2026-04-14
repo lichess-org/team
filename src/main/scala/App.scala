@@ -1,4 +1,6 @@
 import cask.model.Response
+import io.circe.Decoder
+import io.circe.parser.decode
 import sttp.client4.ResponseException.UnexpectedStatusCode
 import sttp.model.HeaderNames.{ ContentType, Location }
 import views.Home
@@ -120,36 +122,41 @@ object App extends cask.MainRoutes:
 
   private lazy val authentikWebhookSecret = Env.get("AUTHENTIK_WEBHOOK_SECRET", "test-secret")
 
-  @cask.postJsonCached("/authentik-event/:secretKey")
-  def authentikEvent(
-      request: cask.Request,
-      secretKey: String,
-      body: Option[String] = None,
-      event_user_email: Option[String] = None
-  ) =
+  @cask.post("/authentik-event/:secretKey")
+  def authentikEvent(secretKey: String, request: cask.Request) =
     if secretKey != authentikWebhookSecret then
       scribe.warn(s"Received request with invalid secret key: $secretKey")
       cask.Response("Unauthorized", statusCode = 401)
-    else if body.contains("Grafana") then
-      scribe.info(s"Received event: ${request.text()}")
-      val result = for
-        email <- event_user_email.toRight(s"Missing user email in event")
-        user <- Grafana
-          .lookupUser(email)
-          .left
-          .map(e => s"Failed to lookup Grafana user $email: ${e.getMessage}")
-        _ <- Grafana
-          .addTeamMember(user.id)
-          .left
-          .map(e => s"Failed to add $email to Grafana team: ${e.getMessage}")
-        _ = scribe.info(s"Added $email to Grafana team")
-      yield ()
-      result.fold(
-        errorMsg =>
-          scribe.error(errorMsg); cask.Response(errorMsg, statusCode = 500)
-        ,
-        _ => cask.Response("OK - Event processed successfully")
-      )
-    else cask.Response("OK - Ignored event")
+    else
+      decode[AuthentikEventPayload](request.text()) match
+        case Left(e) =>
+          scribe.error(s"Failed to decode JSON payload: ${e.getMessage}")
+          cask.Response(s"Invalid JSON: ${e.getMessage}", statusCode = 400)
+        case Right(payload) =>
+          if payload.body.exists(_.contains("Grafana")) then
+            val result = for
+              email <- payload.event_user_email.toRight("Missing user email in event")
+              user <- Grafana
+                .lookupUser(email)
+                .left
+                .map(e => s"Failed to lookup Grafana user $email: ${e.getMessage}")
+              _ <- Grafana
+                .addTeamMember(user.id)
+                .left
+                .map(e => s"Failed to add $email to Grafana team: ${e.getMessage}")
+              _ = scribe.info(s"Added $email to Grafana team")
+            yield ()
+            result.fold(
+              errorMsg =>
+                scribe.error(errorMsg); cask.Response(errorMsg, statusCode = 500)
+              ,
+              _ => cask.Response("OK - Event processed successfully")
+            )
+          else cask.Response("OK - Ignored event")
 
   initialize()
+
+case class AuthentikEventPayload(
+    body: Option[String] = None,
+    event_user_email: Option[String] = None
+) derives Decoder
