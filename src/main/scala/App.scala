@@ -132,7 +132,7 @@ object App extends cask.MainRoutes:
       decode[AuthentikEventPayload](request.text()) match
         case Left(e) =>
           scribe.error(s"Failed to decode JSON payload: ${e.getMessage}")
-          cask.Response(s"Invalid JSON: ${e.getMessage}", statusCode = 400)
+          cask.Response(s"Invalid JSON: ${e.getMessage}")
         case Right(payload) =>
           if payload.body.exists(_.contains("Grafana")) then
             val result = for
@@ -149,7 +149,7 @@ object App extends cask.MainRoutes:
             yield ()
             result.fold(
               errorMsg =>
-                scribe.error(errorMsg); cask.Response(errorMsg, statusCode = 500)
+                scribe.error(errorMsg); cask.Response(errorMsg)
               ,
               _ => cask.Response("OK - Event processed successfully")
             )
