@@ -89,10 +89,12 @@ object App extends cask.MainRoutes:
 
   @cask.get("/healthcheck")
   def healthcheck(): Response[String] =
-    Authentik.version() match
-      case Right(_) => cask.Response("OK")
-      case Left(error) =>
-        cask.Response(s"Failed to connect to Authentik API: ${error.getMessage}", statusCode = 500)
+    val errors = List(
+      Authentik.version().left.toOption.map(e => s"Authentik: ${e.getMessage}"),
+      Grafana.org().left.toOption.map(e => s"Grafana: ${e.getMessage}")
+    ).flatten
+    if errors.isEmpty then cask.Response("OK")
+    else cask.Response(errors.mkString("\n"), statusCode = 500)
 
   private val devMode = sys.env.get("AUTHENTIK_HOST").isEmpty
 
@@ -115,5 +117,32 @@ object App extends cask.MainRoutes:
     if devMode then
       cask.Response(s"Success: Emulated enrollment for $flowSlug with token ${itoken.getOrElse("none")}")
     else cask.Response("", statusCode = 404)
+
+  private lazy val authentikWebhookSecret = Env.get("AUTHENTIK_WEBHOOK_SECRET", "test-secret")
+
+  @cask.postJson("/authentik-event/:secretKey")
+  def authentikEvent(secretKey: String, body: String, event_user_email: String) =
+    if secretKey != authentikWebhookSecret then
+      scribe.warn(s"Received request with invalid secret key: $secretKey")
+      cask.Response("Unauthorized", statusCode = 401)
+    else if body.contains("Grafana") then
+      val result = for
+        user <- Grafana
+          .lookupUser(event_user_email)
+          .left
+          .map(e => s"Failed to lookup Grafana user $event_user_email: ${e.getMessage}")
+        _ <- Grafana
+          .addTeamMember(user.id)
+          .left
+          .map(e => s"Failed to add $event_user_email to Grafana team: ${e.getMessage}")
+        _ = scribe.info(s"Added $event_user_email to Grafana team")
+      yield ()
+      result.fold(
+        errorMsg =>
+          scribe.error(errorMsg); cask.Response(errorMsg, statusCode = 500)
+        ,
+        _ => cask.Response("OK")
+      )
+    else cask.Response("OK")
 
   initialize()

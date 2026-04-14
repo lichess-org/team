@@ -28,6 +28,11 @@ PORT=8000 \
 LICHESS_HOST=http://localhost:8080 \
 AUTHENTIK_HOST=http://localhost:9000 \
 AUTHENTIK_TOKEN=token \
+AUTHENTIK_WEBHOOK_SECRET=secret \
+GRAFANA_HOST=https://example.com \
+GRAFANA_USER=admin \
+GRAFANA_PASSWORD=password \
+GRAFANA_LICHESS_TEAM_ID=abc \
 sbt app/run
 # open http://localhost:8000/
 ```
