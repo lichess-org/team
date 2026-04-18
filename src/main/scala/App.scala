@@ -57,25 +57,27 @@ object App extends cask.MainRoutes:
         cask.Response("Missing authorization code.", statusCode = 400)
       case (_, Some(code)) =>
         val res = for
-          tokenRes = Lichess.obtainAccessToken(code, codeVerifier.value).body.map(_.access_token)
-          token <- tokenRes.left.map(error => s"Failed to obtain access token: ${error.getMessage}")
-          me <- Lichess.me(token).body.left.map(error => s"Failed to fetch account: ${error.getMessage}")
-          meWithMyGroups = Lichess.me(token, Map("wiki" -> "true")).body
-          account <- meWithMyGroups.left.map {
-            case error: UnexpectedStatusCode[?] if error.body.toString.contains("Wiki access not granted") =>
+          token <- Lichess
+            .obtainAccessToken(code, codeVerifier.value)
+            .body
+            .map(_.access_token)
+            .left
+            .map(e => s"Failed to obtain access token: ${e.getMessage}")
+          me <- Lichess.me(token).body.left.map(e => s"Failed to fetch account: ${e.getMessage}")
+          account <- Lichess.me(token, Map("wiki" -> "true")).body.left.map {
+            case e: UnexpectedStatusCode[?] if e.body.toString.contains("Wiki access not granted") =>
               s"Unauthorized: ${me.username} is not a member of `$lichessTeam`"
-            case error => s"Failed to fetch account ${me.username}: ${error.getMessage}"
+            case e => s"Failed to fetch account ${me.username}: ${e.getMessage}"
           }
-          isMember = account.groups.exists(_.contains(lichessTeam))
           _ <- Either.cond(
-            isMember,
+            account.groups.exists(_.contains(lichessTeam)),
             (),
             s"Unauthorized: ${me.username} is not a member of `$lichessTeam`"
           )
-          inviteRes = Authentik.inviteLink(s"lichess-${me.username}", Map("lichess" -> me.username))
-          inviteLink <- inviteRes.left.map(error =>
-            s"Failed to create invitation for ${me.username}: ${error.getMessage}"
-          )
+          inviteLink <- Authentik
+            .inviteLink(s"lichess-${me.username}", Map("lichess" -> me.username))
+            .left
+            .map(e => s"Failed to create invitation for ${me.username}: ${e.getMessage}")
           _ = scribe.info(s"Success: Invite link generated for ${me.username}")
         yield cask.Response(
           "",
