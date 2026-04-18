@@ -91,10 +91,8 @@ object App extends cask.MainRoutes:
 
   @cask.get("/healthcheck")
   def healthcheck(): Response[String] =
-    val errors = List(
-      Authentik.version().left.toOption.map(e => s"Authentik: ${e.getMessage}"),
-      Grafana.org().left.toOption.map(e => s"Grafana: ${e.getMessage}")
-    ).flatten
+    val errors = List(Authentik.version(), Grafana.org())
+      .collect { case Left(e) => e.getMessage }
     if errors.isEmpty then cask.Response("OK")
     else cask.Response(errors.mkString("\n"), statusCode = 500)
 
