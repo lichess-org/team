@@ -2,7 +2,7 @@ import NativePackagerHelper._
 
 inThisBuild(
   Seq(
-    scalaVersion := "3.8.3",
+    scalaVersion := "3.8.4",
     organization := "org.lichess",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
