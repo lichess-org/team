@@ -20,5 +20,4 @@ project/metals.sbt
 /project/project
 /target
 
-/extra
 /node_modules

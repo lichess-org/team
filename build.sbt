@@ -1,5 +1,3 @@
-import NativePackagerHelper._
-
 inThisBuild(
   Seq(
     scalaVersion := "3.8.4",
@@ -32,7 +30,6 @@ lazy val app = (project in file("."))
     dockerUpdateLatest   := true,
     dockerExposedPorts   := Seq(8080),
     dockerEnvVars := Map(
-      "VERSION_FILE" -> "/opt/docker/extra/version.txt"
-    ),
-    Universal / mappings ++= directory("extra")
+      "VERSION" -> sys.env.getOrElse("VERSION", "dev")
+    )
   )
