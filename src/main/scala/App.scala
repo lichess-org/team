@@ -1,3 +1,5 @@
+import Channel.AdminPhone
+import Zulip.phoneTopicName
 import cask.model.Response
 import io.circe.Decoder
 import io.circe.parser.decode
@@ -6,8 +8,6 @@ import sttp.model.HeaderNames.{ ContentType, Location }
 import views.Home
 
 import scala.annotation.unused
-import Zulip.phoneTopicName
-import Channel.AdminPhone
 
 object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
