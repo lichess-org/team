@@ -2,8 +2,6 @@ name: Create and publish a Docker image
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -35,7 +33,7 @@ jobs:
           VERSION: ${{ github.sha }}
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.repository_owner == 'lichess-org' && github.ref_name == github.event.repository.default_branch
     needs: build-and-push-image
     runs-on: ubuntu-latest
     steps:
