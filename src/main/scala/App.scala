@@ -6,6 +6,8 @@ import sttp.model.HeaderNames.{ ContentType, Location }
 import views.Home
 
 import scala.annotation.unused
+import Zulip.phoneTopicName
+import Channel.AdminPhone
 
 object App extends cask.MainRoutes:
   override def port: Int = Env.get("PORT", "8080").toInt
@@ -97,6 +99,48 @@ object App extends cask.MainRoutes:
       .collect { case Left(e) => e.getMessage }
     if errors.isEmpty then cask.Response("OK")
     else cask.Response(errors.mkString("\n"), statusCode = 500)
+
+  @cask.post("/twilio/sms")
+  def twilioSms(request: cask.Request): cask.Response[String] =
+    withTwilioAuth(request, "/twilio/sms") { params =>
+      val from = params.getOrElse("From", "Unknown")
+      val body = params.getOrElse("Body", "")
+      scribe.info(s"SMS from $from: $body")
+      Zulip.send(AdminPhone, phoneTopicName(from), body)
+      cask.Response(Twilio.emptyTwiml, headers = Seq(ContentType -> "text/xml"))
+    }
+
+  @cask.post("/twilio/call-incoming")
+  def twilioCallIncoming(request: cask.Request): cask.Response[String] =
+    withTwilioAuth(request, "/twilio/call-incoming") { params =>
+      val from = params.getOrElse("From", "Unknown")
+      scribe.info(s"Incoming call from $from")
+      cask.Response(Twilio.voicemailTwiml, headers = Seq(ContentType -> "text/xml"))
+    }
+
+  @cask.post("/twilio/call-complete")
+  def twilioCallComplete(request: cask.Request): cask.Response[String] =
+    withTwilioAuth(request, "/twilio/call-complete") { params =>
+      val from = params.getOrElse("From", "Unknown")
+      val recordingUrl = params.getOrElse("RecordingUrl", "")
+      scribe.info(s"Voicemail from $from: $recordingUrl")
+      Zulip.send(
+        AdminPhone,
+        phoneTopicName(from),
+        s"Voicemail: $recordingUrl.mp3\nTranscription: ${params.getOrElse("TranscriptionText", "No transcription")}"
+      )
+      cask.Response(Twilio.hangupTwiml, headers = Seq(ContentType -> "text/xml"))
+    }
+
+  private def withTwilioAuth(request: cask.Request, path: String)(
+      f: Map[String, String] => cask.Response[String]
+  ): cask.Response[String] =
+    val params = Twilio.parseFormData(request.text())
+    val signature = Option(request.exchange.getRequestHeaders.getFirst("X-Twilio-Signature"))
+    if signature.exists(Twilio.validateSignature(path, params, _)) then f(params)
+    else
+      scribe.warn(s"Invalid Twilio signature for $path")
+      cask.Response("Unauthorized", statusCode = 403)
 
   private val devMode = sys.env.get("AUTHENTIK_HOST").isEmpty
 
