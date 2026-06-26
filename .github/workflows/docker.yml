@@ -27,6 +27,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set Docker labels
+        run: |
+          if [ "${{ github.ref_name }}" = "${{ github.event.repository.default_branch }}" ]; then
+            echo "DOCKER_LABELS=${{ github.sha }},${{ github.ref_name }},latest" >> $GITHUB_ENV
+          else
+            echo "DOCKER_LABELS=${{ github.sha }},$(echo '${{ github.ref_name }}' | sed 's/[^a-zA-Z0-9_.-]/_/g')" >> $GITHUB_ENV
+          fi
       - name: Build and push Docker image
         run: sbt app/Docker/publish
         env:

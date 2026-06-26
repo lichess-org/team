@@ -27,7 +27,13 @@ lazy val app = (project in file("."))
     dockerBaseImage      := "eclipse-temurin:25-jdk-noble",
     dockerRepository     := Some("ghcr.io"),
     Docker / packageName := "lichess-org/team",
-    dockerUpdateLatest   := true,
+    dockerAliases        := {
+      val repo = dockerRepository.value
+      val name = (Docker / packageName).value
+      sys.env.getOrElse("DOCKER_LABELS", "latest").split(",").toSeq.map(tag =>
+        DockerAlias(repo, None, name, Some(tag.trim))
+      )
+    },
     dockerExposedPorts   := Seq(8080),
     dockerEnvVars := Map(
       "VERSION" -> sys.env.getOrElse("VERSION", "dev")
