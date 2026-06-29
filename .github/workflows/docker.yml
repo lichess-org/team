@@ -45,4 +45,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          curl --fail -X POST ${{ secrets.DEPLOY_WEBHOOK_URL }}
+          curl -s -w "%{http_code}" --fail-with-body -X POST ${{ secrets.DEPLOY_WEBHOOK_URL }}
