@@ -1,12 +1,26 @@
+import io.circe.Decoder
 import java.net.URLDecoder
 import java.security.MessageDigest
 import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import sttp.client4.*
+import sttp.client4.circe.*
 
 object Twilio:
+  lazy val accountSid = Env.get("TWILIO_ACCOUNT_SID")
   lazy val authToken = Env.get("TWILIO_AUTH_TOKEN")
   lazy val baseUrl = Env.get("APP_URL")
+  lazy val backend = DefaultSyncBackend()
+
+  private lazy val baseApiRequest = basicRequest.auth.basic(accountSid, authToken)
+
+  def healthcheck() =
+    baseApiRequest
+      .get(uri"https://api.twilio.com/2010-04-01/Accounts/$accountSid.json")
+      .response(asJson[TwilioAccountResponse])
+      .send(backend)
+      .body
 
   def parseFormData(body: String): Map[String, String] =
     if body.isBlank then Map.empty
@@ -45,3 +59,5 @@ object Twilio:
       |<Response>
       |  <Hangup />
       |</Response>""".stripMargin
+
+case class TwilioAccountResponse(sid: String) derives Decoder

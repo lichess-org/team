@@ -95,7 +95,12 @@ object App extends cask.MainRoutes:
 
   @cask.get("/healthcheck")
   def healthcheck(): Response[String] =
-    val errors = List(Authentik.version(), Grafana.org())
+    val errors = List(
+      Authentik.version(),
+      Grafana.org(),
+      Twilio.healthcheck(),
+      Zulip.healthcheck()
+    )
       .collect { case Left(e) => e.getMessage }
     if errors.isEmpty then cask.Response("OK")
     else cask.Response(errors.mkString("\n"), statusCode = 500)

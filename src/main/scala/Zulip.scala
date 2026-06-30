@@ -1,4 +1,6 @@
+import io.circe.Decoder
 import sttp.client4.*
+import sttp.client4.circe.*
 
 enum Channel(val name: String):
   case AdminPhone extends Channel("admin-phone")
@@ -15,11 +17,20 @@ object Zulip:
     val last4 = phone.takeRight(4)
     s"***$last4"
 
+  def healthcheck() =
+    baseRequest
+      .get(uri"$host/api/v1/users/me")
+      .response(asJson[ZulipUserResponse])
+      .send(backend)
+      .body
+
   def send(channel: Channel, topic: String, message: String): Unit =
     baseRequest
       .post(uri"$host/api/v1/messages")
       .body(ChannelMessage(channel.name, topic, message).toForm*)
       .send(backend)
+
+case class ZulipUserResponse(user_id: Int) derives Decoder
 
 case class ChannelMessage(to: String, topic: String, content: String):
   def toForm: Seq[(String, String)] = Seq(
