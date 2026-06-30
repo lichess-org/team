@@ -51,7 +51,7 @@ object Twilio:
   val voicemailTwiml: String =
     """<?xml version="1.0" encoding="UTF-8"?>
       |<Response>
-      |  <Say voice="alice">Thank you for calling Lichess dot org. Please leave a message after the tone.</Say>
+      |  <Say voice="Polly.Mathieu">Thank you for calling lee chess dot org. Please leave a message after the tone.</Say>
       |  <Record maxLength="120" transcribe="true" transcribeCallback="/twilio/call-complete" />
       |</Response>""".stripMargin
 
