@@ -1,3 +1,5 @@
+import Channel.AdminPhone
+import Zulip.phoneTopicName
 import cask.model.Response
 import io.circe.Decoder
 import io.circe.parser.decode
@@ -93,10 +95,66 @@ object App extends cask.MainRoutes:
 
   @cask.get("/healthcheck")
   def healthcheck(): Response[String] =
-    val errors = List(Authentik.version(), Grafana.org())
+    val errors = List(
+      Authentik.version(),
+      Grafana.org(),
+      Twilio.healthcheck(),
+      Zulip.healthcheck()
+    )
       .collect { case Left(e) => e.getMessage }
     if errors.isEmpty then cask.Response("OK")
     else cask.Response(errors.mkString("\n"), statusCode = 500)
+
+  @cask.post("/twilio/sms")
+  def twilioSms(request: cask.Request): cask.Response[String] =
+    withTwilioAuth(request, "/twilio/sms") { params =>
+      val from = params.getOrElse("From", "Unknown")
+      val body = params.getOrElse("Body", "")
+      scribe.info(s"SMS from $from: $body")
+      Zulip.send(AdminPhone, phoneTopicName(params), body)
+      cask.Response(Twilio.emptyTwiml, headers = Seq(ContentType -> "text/xml"))
+    }
+
+  @cask.post("/twilio/call-incoming")
+  def twilioCallIncoming(request: cask.Request): cask.Response[String] =
+    withTwilioAuth(request, "/twilio/call-incoming") { params =>
+      val from = params.getOrElse("From", "Unknown")
+      scribe.info(s"Incoming call from $from")
+      cask.Response(Twilio.voicemailTwiml, headers = Seq(ContentType -> "text/xml"))
+    }
+
+  @cask.post("/twilio/call-complete")
+  def twilioCallComplete(request: cask.Request): cask.Response[String] =
+    withTwilioAuth(request, "/twilio/call-complete") { params =>
+      val from = params.getOrElse("From", "Unknown")
+      val recordingUrl = params.getOrElse("RecordingUrl", "")
+      scribe.info(s"Voicemail from $from: $recordingUrl")
+      val transcription = params.getOrElse("TranscriptionText", "No transcription")
+      val voicemailLine = (for
+        bytes <- Twilio.downloadRecording(recordingUrl)
+        uri <- Zulip.uploadFile("voicemail.mp3", bytes)
+      yield s":voicemail: [voicemail.mp3]($uri)") match
+        case Right(ref) => s"Voicemail: $ref"
+        case Left(e) =>
+          scribe.warn(s"Failed to attach voicemail: ${e.getMessage}")
+          s"*Voicemail:* $recordingUrl.mp3"
+      Zulip.send(
+        AdminPhone,
+        phoneTopicName(params),
+        s"$voicemailLine\n*Transcription:*\n```quote\n$transcription\n```"
+      )
+      cask.Response(Twilio.hangupTwiml, headers = Seq(ContentType -> "text/xml"))
+    }
+
+  private def withTwilioAuth(request: cask.Request, path: String)(
+      f: Map[String, String] => cask.Response[String]
+  ): cask.Response[String] =
+    val params = Twilio.parseFormData(request.text())
+    val signature = Option(request.exchange.getRequestHeaders.getFirst("X-Twilio-Signature"))
+    if signature.exists(Twilio.validateSignature(path, params, _)) then f(params)
+    else
+      scribe.warn(s"Invalid Twilio signature for $path")
+      cask.Response("Unauthorized", statusCode = 403)
 
   private val devMode = sys.env.get("AUTHENTIK_HOST").isEmpty
 
