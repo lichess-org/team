@@ -54,11 +54,30 @@ class TwilioTest extends munit.FunSuite:
     assert(!Twilio.validateSignature(path, Map("Body" -> "tampered"), signature))
 
   test("phoneTopicName masks all but last 4 digits"):
-    assertEquals(Zulip.phoneTopicName("+15551234567"), "***4567")
+    assertEquals(Zulip.phoneTopicName(Map("From" -> "+15551234567")), "***4567")
+
+  test("phoneTopicName includes location when present"):
+    assertEquals(
+      Zulip.phoneTopicName(
+        Map(
+          "From" -> "+15551234567",
+          "FromCity" -> "San Francisco",
+          "FromState" -> "CA",
+          "FromCountry" -> "US"
+        )
+      ),
+      "***4567 (San Francisco, CA, US)"
+    )
+
+  test("phoneTopicName omits missing location parts"):
+    assertEquals(
+      Zulip.phoneTopicName(Map("From" -> "+15551234567", "FromState" -> "CA")),
+      "***4567 (CA)"
+    )
 
   test("phoneTopicName handles short input"):
-    assertEquals(Zulip.phoneTopicName("1234"), "***1234")
-    assertEquals(Zulip.phoneTopicName("12"), "***12")
+    assertEquals(Zulip.phoneTopicName(Map("From" -> "1234")), "***1234")
+    assertEquals(Zulip.phoneTopicName(Map("From" -> "12")), "***12")
 
   test("emptyTwiml contains Response"):
     assert(Twilio.emptyTwiml.contains("<Response />"))

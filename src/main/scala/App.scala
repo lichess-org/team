@@ -111,7 +111,7 @@ object App extends cask.MainRoutes:
       val from = params.getOrElse("From", "Unknown")
       val body = params.getOrElse("Body", "")
       scribe.info(s"SMS from $from: $body")
-      Zulip.send(AdminPhone, phoneTopicName(from), body)
+      Zulip.send(AdminPhone, phoneTopicName(params), body)
       cask.Response(Twilio.emptyTwiml, headers = Seq(ContentType -> "text/xml"))
     }
 
@@ -131,7 +131,7 @@ object App extends cask.MainRoutes:
       scribe.info(s"Voicemail from $from: $recordingUrl")
       Zulip.send(
         AdminPhone,
-        phoneTopicName(from),
+        phoneTopicName(params),
         s"Voicemail: $recordingUrl.mp3\nTranscription: ${params.getOrElse("TranscriptionText", "No transcription")}"
       )
       cask.Response(Twilio.hangupTwiml, headers = Seq(ContentType -> "text/xml"))

@@ -13,9 +13,18 @@ object Zulip:
 
   private lazy val baseRequest = basicRequest.auth.basic(email, apiKey)
 
-  def phoneTopicName(phone: String): String =
-    val last4 = phone.takeRight(4)
-    s"***$last4"
+  def phoneTopicName(params: Map[String, String]): String =
+    val phone = params.get("From")
+    val city = params.get("FromCity")
+    val state = params.get("FromState")
+    val country = params.get("FromCountry")
+
+    val location = List(city, state, country).flatten match
+      case Nil => ""
+      case parts => s" (${parts.mkString(", ")})"
+
+    val maskedPhone = phone.fold("")(_.takeRight(4))
+    s"***$maskedPhone$location"
 
   def healthcheck() =
     baseRequest
