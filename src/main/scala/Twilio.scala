@@ -1,11 +1,12 @@
 import io.circe.Decoder
+import sttp.client4.*
+import sttp.client4.circe.*
+
 import java.net.URLDecoder
 import java.security.MessageDigest
 import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import sttp.client4.*
-import sttp.client4.circe.*
 
 object Twilio:
   lazy val accountSid = Env.get("TWILIO_ACCOUNT_SID")
