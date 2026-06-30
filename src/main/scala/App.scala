@@ -129,11 +129,16 @@ object App extends cask.MainRoutes:
       val from = params.getOrElse("From", "Unknown")
       val recordingUrl = params.getOrElse("RecordingUrl", "")
       scribe.info(s"Voicemail from $from: $recordingUrl")
-      Zulip.send(
-        AdminPhone,
-        phoneTopicName(params),
-        s"Voicemail: $recordingUrl.mp3\nTranscription: ${params.getOrElse("TranscriptionText", "No transcription")}"
-      )
+      val transcription = params.getOrElse("TranscriptionText", "No transcription")
+      val voicemailLine = (for
+        bytes <- Twilio.downloadRecording(recordingUrl)
+        uri <- Zulip.uploadFile("voicemail.mp3", bytes)
+      yield s"[$uri]($uri)") match
+        case Right(ref) => s"Voicemail: $ref"
+        case Left(e) =>
+          scribe.warn(s"Failed to attach voicemail: ${e.getMessage}")
+          s"Voicemail: $recordingUrl.mp3"
+      Zulip.send(AdminPhone, phoneTopicName(params), s"$voicemailLine\nTranscription: $transcription")
       cask.Response(Twilio.hangupTwiml, headers = Seq(ContentType -> "text/xml"))
     }
 

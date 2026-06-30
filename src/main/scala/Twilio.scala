@@ -23,6 +23,15 @@ object Twilio:
       .send(backend)
       .body
 
+  def downloadRecording(recordingUrl: String): Either[Exception, Array[Byte]] =
+    baseApiRequest
+      .get(uri"$recordingUrl.mp3")
+      .response(asByteArray)
+      .send(backend)
+      .body
+      .left
+      .map(RuntimeException(_))
+
   def parseFormData(body: String): Map[String, String] =
     if body.isBlank then Map.empty
     else

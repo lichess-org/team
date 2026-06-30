@@ -26,6 +26,15 @@ object Zulip:
     val maskedPhone = phone.fold("")(_.takeRight(4))
     s"***$maskedPhone$location"
 
+  def uploadFile(filename: String, bytes: Array[Byte]): Either[Exception, String] =
+    baseRequest
+      .post(uri"$host/api/v1/user_uploads")
+      .multipartBody(multipart("filename", bytes).fileName(filename).contentType("audio/mpeg"))
+      .response(asJson[ZulipUploadResponse])
+      .send(backend)
+      .body
+      .map(_.uri)
+
   def healthcheck() =
     baseRequest
       .get(uri"$host/api/v1/users/me")
@@ -38,6 +47,8 @@ object Zulip:
       .post(uri"$host/api/v1/messages")
       .body(ChannelMessage(channel.name, topic, message).toForm*)
       .send(backend)
+
+case class ZulipUploadResponse(uri: String) derives Decoder
 
 case class ZulipUserResponse(user_id: Int) derives Decoder
 
