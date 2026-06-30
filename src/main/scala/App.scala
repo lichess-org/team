@@ -1,5 +1,4 @@
 import Channel.AdminPhone
-import Zulip.phoneTopicName
 import cask.model.Response
 import io.circe.Decoder
 import io.circe.parser.decode
@@ -111,7 +110,7 @@ object App extends cask.MainRoutes:
       val from = params.getOrElse("From", "Unknown")
       val body = params.getOrElse("Body", "")
       scribe.info(s"SMS from $from: $body")
-      Zulip.send(AdminPhone, phoneTopicName(params), body)
+      Zulip.send(AdminPhone, Zulip.phoneTopicName(EventType.Sms, params), body)
       cask.Response(Twilio.emptyTwiml, headers = Seq(ContentType -> "text/xml"))
     }
 
@@ -140,7 +139,7 @@ object App extends cask.MainRoutes:
           s"*Voicemail:* $recordingUrl.mp3"
       Zulip.send(
         AdminPhone,
-        phoneTopicName(params),
+        Zulip.phoneTopicName(EventType.Call, params),
         s"$voicemailLine\n*Transcription:*\n```quote\n$transcription\n```"
       )
       cask.Response(Twilio.hangupTwiml, headers = Seq(ContentType -> "text/xml"))

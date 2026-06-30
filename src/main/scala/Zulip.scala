@@ -2,6 +2,10 @@ import io.circe.Decoder
 import sttp.client4.*
 import sttp.client4.circe.*
 
+enum EventType(val name: String):
+  case Call extends EventType("call")
+  case Sms extends EventType("sms")
+
 enum Channel(val name: String):
   case AdminPhone extends Channel("admin-phone")
 
@@ -13,7 +17,7 @@ object Zulip:
 
   private lazy val baseRequest = basicRequest.auth.basic(email, apiKey)
 
-  def phoneTopicName(params: Map[String, String]): String =
+  def phoneTopicName(typ: EventType, params: Map[String, String]): String =
     val phone = params.get("From")
     val city = params.get("FromCity")
     val state = params.get("FromState")
@@ -24,7 +28,7 @@ object Zulip:
       case parts => s" (${parts.mkString(", ")})"
 
     val maskedPhone = phone.fold("")(_.takeRight(4))
-    s"***$maskedPhone$location"
+    s"${typ.name} ***$maskedPhone$location"
 
   def uploadFile(filename: String, bytes: Array[Byte]): Either[Exception, String] =
     baseRequest
