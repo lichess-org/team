@@ -1,6 +1,6 @@
 inThisBuild(
   Seq(
-    scalaVersion := "3.8.4",
+    scalaVersion := "3.9.0",
     organization := "org.lichess",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
@@ -17,7 +17,7 @@ lazy val app = (project in file("."))
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "cask" % "0.11.0",
       "com.lihaoyi" %% "scalatags" % "0.13.1",
-      "com.softwaremill.sttp.client4" %% "circe" % "4.0.25",
+      "com.softwaremill.sttp.client4" %% "circe" % "4.0.26",
       "org.scala-lang" %% "toolkit" % "0.9.2",
       "org.scala-lang" %% "toolkit-test" % "0.9.2" % Test,
       "com.outr" %% "scribe" % "3.19.0",
