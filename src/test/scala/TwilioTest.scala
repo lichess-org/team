@@ -54,11 +54,20 @@ class TwilioTest extends munit.FunSuite:
     assert(!Twilio.validateSignature(path, Map("Body" -> "tampered"), signature))
 
   test("phoneTopicName masks all but last 4 digits"):
-    assertEquals(Zulip.phoneTopicName(Map("From" -> "+15551234567")), "***4567")
+    assertEquals(
+      Zulip.phoneTopicName(EventType.Sms, Map("From" -> "+15551234567")),
+      "sms ***4567"
+    )
+
+  test("phoneTopicName prefixes the event type"):
+    val params = Map("From" -> "+15551234567")
+    assertEquals(Zulip.phoneTopicName(EventType.Sms, params), "sms ***4567")
+    assertEquals(Zulip.phoneTopicName(EventType.Call, params), "call ***4567")
 
   test("phoneTopicName includes location when present"):
     assertEquals(
       Zulip.phoneTopicName(
+        EventType.Sms,
         Map(
           "From" -> "+15551234567",
           "FromCity" -> "San Francisco",
@@ -66,18 +75,18 @@ class TwilioTest extends munit.FunSuite:
           "FromCountry" -> "US"
         )
       ),
-      "***4567 (San Francisco, CA, US)"
+      "sms ***4567 (San Francisco, CA, US)"
     )
 
   test("phoneTopicName omits missing location parts"):
     assertEquals(
-      Zulip.phoneTopicName(Map("From" -> "+15551234567", "FromState" -> "CA")),
-      "***4567 (CA)"
+      Zulip.phoneTopicName(EventType.Sms, Map("From" -> "+15551234567", "FromState" -> "CA")),
+      "sms ***4567 (CA)"
     )
 
   test("phoneTopicName handles short input"):
-    assertEquals(Zulip.phoneTopicName(Map("From" -> "1234")), "***1234")
-    assertEquals(Zulip.phoneTopicName(Map("From" -> "12")), "***12")
+    assertEquals(Zulip.phoneTopicName(EventType.Sms, Map("From" -> "1234")), "sms ***1234")
+    assertEquals(Zulip.phoneTopicName(EventType.Sms, Map("From" -> "12")), "sms ***12")
 
   test("emptyTwiml contains Response"):
     assert(Twilio.emptyTwiml.contains("<Response />"))
